@@ -76,7 +76,7 @@ namespace OpenXmlPowerTools
                 using (PresentationDocument output = streamDoc.GetPresentationDocument())
                 {
                     BuildPresentation(sources, output);
-                    output.Close();
+                    output.Save();
                 }
                 streamDoc.GetModifiedDocument().SaveAs(fileName);
             }
@@ -89,7 +89,7 @@ namespace OpenXmlPowerTools
                 using (PresentationDocument output = streamDoc.GetPresentationDocument())
                 {
                     BuildPresentation(sources, output);
-                    output.Close();
+                    output.Save();
                 }
                 return streamDoc.GetModifiedPmlDocument();
             }

@@ -71,6 +71,107 @@ public class MarkdownConverter
     public PageMargins PageMargins { get; set; } = PageMargins.Default;
 
     /// <summary>
+    /// Convert Markdown to PPTX slides.
+    /// </summary>
+    /// <param name="markdown">The input markdown source.</param>
+    /// <param name="outputFilePath">The output file path.</param>
+    public void ToSlides(MarkdownSource markdown, string outputFilePath)
+    {
+        using (var streamDoc = OpenXmlPowerTools.OpenXmlMemoryStreamDocument.CreatePresentationDocument())
+        {
+            using (var document = streamDoc.GetPresentationDocument())
+            {
+                var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
+                {
+                    ImagesBaseUri = this.ImagesBaseUri,
+                    LinksBaseUri = this.LinksBaseUri,
+                    SkipImages = this.SkipImages,
+                    EnableExternalResources = this.EnableExternalResources
+                };
+                renderer.Render(markdown.Document);
+
+                // Remove the empty default first slide from OpenXmlPowerTools template if we created our own slides
+                var presentationPart = document.PresentationPart;
+                var slideIdList = presentationPart?.Presentation?.SlideIdList;
+                if (slideIdList != null && slideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>().Count() > 1)
+                {
+                    var firstSlideId = slideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>().First();
+                    if (firstSlideId != null)
+                    {
+                        var slidePartId = firstSlideId.RelationshipId;
+                        slideIdList.RemoveChild(firstSlideId);
+
+                        if (slidePartId?.Value != null)
+                        {
+                            var slidePart = presentationPart.GetPartById(slidePartId.Value);
+                            presentationPart.DeletePart(slidePart);
+                        }
+                    }
+                }
+            }
+            streamDoc.GetModifiedPmlDocument().SaveAs(outputFilePath);
+        }
+    }
+
+    /// <summary>
+    /// Convert Markdown to PPTX slides.
+    /// </summary>
+    /// <param name="markdown">The input markdown source.</param>
+    /// <param name="outputStream">The output stream.</param>
+    public void ToSlides(MarkdownSource markdown, Stream outputStream)
+    {
+        using (var streamDoc = OpenXmlPowerTools.OpenXmlMemoryStreamDocument.CreatePresentationDocument())
+        {
+            using (var document = streamDoc.GetPresentationDocument())
+            {
+                var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
+                {
+                    ImagesBaseUri = this.ImagesBaseUri,
+                    LinksBaseUri = this.LinksBaseUri,
+                    SkipImages = this.SkipImages,
+                    EnableExternalResources = this.EnableExternalResources
+                };
+                renderer.Render(markdown.Document);
+
+                // Remove the empty default first slide
+                var presentationPart = document.PresentationPart;
+                var slideIdList = presentationPart?.Presentation?.SlideIdList;
+                if (slideIdList != null && slideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>().Count() > 1)
+                {
+                    var firstSlideId = slideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>().First();
+                    if (firstSlideId != null)
+                    {
+                        var slidePartId = firstSlideId.RelationshipId;
+                        slideIdList.RemoveChild(firstSlideId);
+
+                        if (slidePartId != null)
+                        {
+                            var slidePart = presentationPart.GetPartById(slidePartId);
+                            presentationPart.DeletePart(slidePart);
+                        }
+                    }
+                }
+            }
+
+            var pmlDoc = streamDoc.GetModifiedPmlDocument();
+            outputStream.Write(pmlDoc.DocumentByteArray, 0, pmlDoc.DocumentByteArray.Length);
+        }
+    }
+
+    /// <summary>
+    /// Convert Markdown to PPTX slides bytes.
+    /// </summary>
+    /// <param name="markdown">The input markdown source.</param>
+    public byte[] ToSlidesBytes(MarkdownSource markdown)
+    {
+        using (var ms = new MemoryStream())
+        {
+            ToSlides(markdown, ms);
+            return ms.ToArray();
+        }
+    }
+
+    /// <summary>
     /// Convert Markdown to DOCX.
     /// </summary>
     /// <param name="markdown">The input markdown source.</param>
