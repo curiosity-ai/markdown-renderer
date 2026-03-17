@@ -3,6 +3,7 @@ using System.Text;
 using System.Xml.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Presentation;
 using Markdig;
 using Markdig.Syntax;
 using Markdig.Renderers.Docx;
@@ -11,6 +12,7 @@ using MarkdownRenderer.Writers;
 using MarkdownRenderer.Primitives;
 using System;
 using System.Linq;
+using D = DocumentFormat.OpenXml.Drawing;
 using W = DocumentFormat.OpenXml.Wordprocessing;
 
 namespace MarkdownRenderer.Markdown;
@@ -77,39 +79,18 @@ public class MarkdownConverter
     /// <param name="outputFilePath">The output file path.</param>
     public void ToSlides(MarkdownSource markdown, string outputFilePath)
     {
-        using (var streamDoc = OpenXmlPowerTools.OpenXmlMemoryStreamDocument.CreatePresentationDocument())
+        using (var document = PresentationDocument.Create(outputFilePath, PresentationDocumentType.Presentation))
         {
-            using (var document = streamDoc.GetPresentationDocument())
+            InitializePresentation(document);
+            var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
             {
-                var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
-                {
-                    ImagesBaseUri = this.ImagesBaseUri,
-                    LinksBaseUri = this.LinksBaseUri,
-                    SkipImages = this.SkipImages,
-                    EnableExternalResources = this.EnableExternalResources
-                };
-                renderer.Render(markdown.Document);
-
-                // Remove the empty default first slide from OpenXmlPowerTools template if we created our own slides
-                var presentationPart = document.PresentationPart;
-                var slideIdList = presentationPart?.Presentation?.SlideIdList;
-                if (slideIdList != null && slideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>().Count() > 1)
-                {
-                    var firstSlideId = slideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>().First();
-                    if (firstSlideId != null)
-                    {
-                        var slidePartId = firstSlideId.RelationshipId;
-                        slideIdList.RemoveChild(firstSlideId);
-
-                        if (slidePartId?.Value != null)
-                        {
-                            var slidePart = presentationPart.GetPartById(slidePartId.Value);
-                            presentationPart.DeletePart(slidePart);
-                        }
-                    }
-                }
-            }
-            streamDoc.GetModifiedPmlDocument().SaveAs(outputFilePath);
+                ImagesBaseUri = this.ImagesBaseUri,
+                LinksBaseUri = this.LinksBaseUri,
+                SkipImages = this.SkipImages,
+                EnableExternalResources = this.EnableExternalResources
+            };
+            renderer.Render(markdown.Document);
+            document.Save();
         }
     }
 
@@ -120,42 +101,94 @@ public class MarkdownConverter
     /// <param name="outputStream">The output stream.</param>
     public void ToSlides(MarkdownSource markdown, Stream outputStream)
     {
-        using (var streamDoc = OpenXmlPowerTools.OpenXmlMemoryStreamDocument.CreatePresentationDocument())
+        using (var document = PresentationDocument.Create(outputStream, PresentationDocumentType.Presentation))
         {
-            using (var document = streamDoc.GetPresentationDocument())
+            InitializePresentation(document);
+            var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
             {
-                var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
-                {
-                    ImagesBaseUri = this.ImagesBaseUri,
-                    LinksBaseUri = this.LinksBaseUri,
-                    SkipImages = this.SkipImages,
-                    EnableExternalResources = this.EnableExternalResources
-                };
-                renderer.Render(markdown.Document);
-
-                // Remove the empty default first slide
-                var presentationPart = document.PresentationPart;
-                var slideIdList = presentationPart?.Presentation?.SlideIdList;
-                if (slideIdList != null && slideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>().Count() > 1)
-                {
-                    var firstSlideId = slideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>().First();
-                    if (firstSlideId != null)
-                    {
-                        var slidePartId = firstSlideId.RelationshipId;
-                        slideIdList.RemoveChild(firstSlideId);
-
-                        if (slidePartId != null)
-                        {
-                            var slidePart = presentationPart.GetPartById(slidePartId);
-                            presentationPart.DeletePart(slidePart);
-                        }
-                    }
-                }
-            }
-
-            var pmlDoc = streamDoc.GetModifiedPmlDocument();
-            outputStream.Write(pmlDoc.DocumentByteArray, 0, pmlDoc.DocumentByteArray.Length);
+                ImagesBaseUri = this.ImagesBaseUri,
+                LinksBaseUri = this.LinksBaseUri,
+                SkipImages = this.SkipImages,
+                EnableExternalResources = this.EnableExternalResources
+            };
+            renderer.Render(markdown.Document);
+            document.Save();
         }
+    }
+
+    private void InitializePresentation(PresentationDocument presentationDoc)
+    {
+        PresentationPart presentationPart = presentationDoc.AddPresentationPart();
+        presentationPart.Presentation = new Presentation();
+
+        // Create Presentation Properties
+        PresentationPropertiesPart presPropsPart = presentationPart.AddNewPart<PresentationPropertiesPart>();
+        presPropsPart.PresentationProperties = new PresentationProperties();
+
+        // Create Theme
+        ThemePart themePart = presentationPart.AddNewPart<ThemePart>();
+        themePart.Theme = new D.Theme() { Name = "Office Theme" };
+        themePart.Theme.AppendChild(new D.ThemeElements(
+            new D.ColorScheme(
+                new D.Dark1Color(new D.SystemColor() { Val = D.SystemColorValues.WindowText, LastColor = "000000" }),
+                new D.Light1Color(new D.SystemColor() { Val = D.SystemColorValues.Window, LastColor = "FFFFFF" }),
+                new D.Dark2Color(new D.RgbColorModelHex() { Val = "44546A" }),
+                new D.Light2Color(new D.RgbColorModelHex() { Val = "E7E6E6" }),
+                new D.Accent1Color(new D.RgbColorModelHex() { Val = "5B9BD5" }),
+                new D.Accent2Color(new D.RgbColorModelHex() { Val = "ED7D31" }),
+                new D.Accent3Color(new D.RgbColorModelHex() { Val = "A5A5A5" }),
+                new D.Accent4Color(new D.RgbColorModelHex() { Val = "FFC000" }),
+                new D.Accent5Color(new D.RgbColorModelHex() { Val = "4472C4" }),
+                new D.Accent6Color(new D.RgbColorModelHex() { Val = "70AD47" }),
+                new D.Hyperlink(new D.RgbColorModelHex() { Val = "0563C1" }),
+                new D.FollowedHyperlinkColor(new D.RgbColorModelHex() { Val = "954F72" })
+            ) { Name = "Office" },
+            new D.FontScheme(
+                new D.MajorFont(new D.LatinFont() { Typeface = "Calibri Light" }, new D.EastAsianFont() { Typeface = "" }, new D.ComplexScriptFont() { Typeface = "" }),
+                new D.MinorFont(new D.LatinFont() { Typeface = "Calibri" }, new D.EastAsianFont() { Typeface = "" }, new D.ComplexScriptFont() { Typeface = "" })
+            ) { Name = "Office" },
+            new D.FormatScheme(
+                new D.FillStyleList(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
+                new D.LineStyleList(new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))),
+                new D.EffectStyleList(new D.EffectStyle(new D.EffectList())),
+                new D.BackgroundFillStyleList(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))
+            ) { Name = "Office" }
+        ));
+        themePart.Theme.AppendChild(new D.ObjectDefaults());
+        themePart.Theme.AppendChild(new D.ExtraColorSchemeList());
+
+        // Create Slide Master
+        SlideMasterPart slideMasterPart = presentationPart.AddNewPart<SlideMasterPart>();
+        slideMasterPart.SlideMaster = new SlideMaster(
+            new CommonSlideData(new ShapeTree(
+                new NonVisualGroupShapeProperties(
+                    new NonVisualDrawingProperties() { Id = 1, Name = "" },
+                    new NonVisualGroupShapeDrawingProperties(),
+                    new ApplicationNonVisualDrawingProperties()),
+                new GroupShapeProperties(new D.TransformGroup()))),
+            new ColorMap() { Background1 = D.ColorSchemeIndexValues.Light1, Text1 = D.ColorSchemeIndexValues.Dark1, Background2 = D.ColorSchemeIndexValues.Light2, Text2 = D.ColorSchemeIndexValues.Dark2, Accent1 = D.ColorSchemeIndexValues.Accent1, Accent2 = D.ColorSchemeIndexValues.Accent2, Accent3 = D.ColorSchemeIndexValues.Accent3, Accent4 = D.ColorSchemeIndexValues.Accent4, Accent5 = D.ColorSchemeIndexValues.Accent5, Accent6 = D.ColorSchemeIndexValues.Accent6, Hyperlink = D.ColorSchemeIndexValues.Hyperlink, FollowedHyperlink = D.ColorSchemeIndexValues.FollowedHyperlink },
+            new SlideLayoutIdList()
+        );
+
+        // Add Theme to Slide Master
+        slideMasterPart.AddPart(themePart);
+
+        // Create Slide Layout
+        SlideLayoutPart slideLayoutPart = slideMasterPart.AddNewPart<SlideLayoutPart>();
+        slideLayoutPart.SlideLayout = new SlideLayout(
+            new CommonSlideData(new ShapeTree(
+                new NonVisualGroupShapeProperties(
+                    new NonVisualDrawingProperties() { Id = 1, Name = "" },
+                    new NonVisualGroupShapeDrawingProperties(),
+                    new ApplicationNonVisualDrawingProperties()),
+                new GroupShapeProperties(new D.TransformGroup())))
+        );
+
+        // Link Slide Layout back to Slide Master
+        slideMasterPart.SlideMaster.SlideLayoutIdList!.AppendChild(new SlideLayoutId() { Id = 2147483649, RelationshipId = slideMasterPart.GetIdOfPart(slideLayoutPart) });
+
+        // Link Slide Master to Presentation
+        presentationPart.Presentation.AppendChild(new SlideMasterIdList(new SlideMasterId() { Id = 2147483648, RelationshipId = presentationPart.GetIdOfPart(slideMasterPart) }));
     }
 
     /// <summary>

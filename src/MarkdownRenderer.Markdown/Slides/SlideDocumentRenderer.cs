@@ -95,6 +95,17 @@ public class SlideDocumentRenderer : RendererBase
             RelationshipId = PresentationPart.GetIdOfPart(slidePart)
         });
 
+        var slideLayoutPart = PresentationPart.SlideMasterParts.First().SlideLayoutParts.First();
+        slidePart.AddPart(slideLayoutPart);
+
+        slidePart.Slide.CommonSlideData!.ShapeTree = new P.ShapeTree(
+            new P.NonVisualGroupShapeProperties(
+                new P.NonVisualDrawingProperties() { Id = 1, Name = "" },
+                new P.NonVisualGroupShapeDrawingProperties(),
+                new P.ApplicationNonVisualDrawingProperties()),
+            new P.GroupShapeProperties(new D.TransformGroup())
+        );
+
         CurrentSlidePart = slidePart;
         CurrentShape = null!;
         CurrentTextBody = null!;
@@ -129,6 +140,14 @@ public class SlideDocumentRenderer : RendererBase
     public D.Paragraph CreateParagraph()
     {
         var p = new D.Paragraph();
+        if (ActiveList.Count > 0)
+        {
+            p.ParagraphProperties = new D.ParagraphProperties()
+            {
+                Level = ActiveList.Count
+            };
+        }
+
         if (CurrentTextBody == null) {
             CurrentShape = CreateShape();
             CurrentSlidePart.Slide.CommonSlideData!.ShapeTree!.AppendChild(CurrentShape);
