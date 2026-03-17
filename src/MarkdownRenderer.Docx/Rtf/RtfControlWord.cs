@@ -1,0 +1,20 @@
+namespace MarkdownRenderer.Rtf;
+
+internal class RtfControlWord : RtfToken
+{
+    public string Name { get; set; } = string.Empty;
+    public int? Value { get; set; }
+    public bool HasValue => Value != null;
+    public bool DelimitedBySpace { get; set; }
+    public RtfControlWord(string name)
+    {
+        Name = name;
+    }
+
+    public RtfControlWord(string name, int value)
+    {
+        Name = name;
+        Value = value;
+    }
+}
+

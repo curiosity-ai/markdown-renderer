@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Runtime.InteropServices;
-using DocSharp.Docx;
-using DocSharp.Imaging;
-using DocSharp.Markdown;
-using DocSharp.Renderer;
+using MarkdownRenderer.Docx;
+using MarkdownRenderer.Imaging;
+using MarkdownRenderer.Markdown;
+using MarkdownRenderer.Renderer;
 using System;
 
 namespace ConsoleApp1;
@@ -298,36 +298,36 @@ public class ConsoleApp1
 
     private static void DocToDocx(string inputFilePath, string outputFilePath)
     {
-        using (var reader = new DocSharp.Binary.StructuredStorage.Reader.StructuredStorageReader(inputFilePath))
+        using (var reader = new MarkdownRenderer.Binary.StructuredStorage.Reader.StructuredStorageReader(inputFilePath))
         {
-            var doc = new DocSharp.Binary.DocFileFormat.WordDocument(reader);
-            using (var docx = DocSharp.Binary.OpenXmlLib.WordprocessingML.WordprocessingDocument.Create(outputFilePath, DocSharp.Binary.OpenXmlLib.WordprocessingDocumentType.Document))
+            var doc = new MarkdownRenderer.Binary.DocFileFormat.WordDocument(reader);
+            using (var docx = MarkdownRenderer.Binary.OpenXmlLib.WordprocessingML.WordprocessingDocument.Create(outputFilePath, MarkdownRenderer.Binary.OpenXmlLib.WordprocessingDocumentType.Document))
             {
-                DocSharp.Binary.WordprocessingMLMapping.Converter.Convert(doc, docx);
+                MarkdownRenderer.Binary.WordprocessingMLMapping.Converter.Convert(doc, docx);
             }
         }
     }
 
     private static void XlsToXlsx(string inputFilePath, string outputFilePath)
     {
-        using (var reader = new DocSharp.Binary.StructuredStorage.Reader.StructuredStorageReader(inputFilePath))
+        using (var reader = new MarkdownRenderer.Binary.StructuredStorage.Reader.StructuredStorageReader(inputFilePath))
         {
-            var xls = new DocSharp.Binary.Spreadsheet.XlsFileFormat.XlsDocument(reader);
-            using (var xlsx = DocSharp.Binary.OpenXmlLib.SpreadsheetML.SpreadsheetDocument.Create(outputFilePath, DocSharp.Binary.OpenXmlLib.SpreadsheetDocumentType.Workbook))
+            var xls = new MarkdownRenderer.Binary.Spreadsheet.XlsFileFormat.XlsDocument(reader);
+            using (var xlsx = MarkdownRenderer.Binary.OpenXmlLib.SpreadsheetML.SpreadsheetDocument.Create(outputFilePath, MarkdownRenderer.Binary.OpenXmlLib.SpreadsheetDocumentType.Workbook))
             {
-                DocSharp.Binary.SpreadsheetMLMapping.Converter.Convert(xls, xlsx);
+                MarkdownRenderer.Binary.SpreadsheetMLMapping.Converter.Convert(xls, xlsx);
             }
         }
     }
 
     private static void PptToPptx(string inputFilePath, string outputFilePath)
     {
-        using (var reader = new DocSharp.Binary.StructuredStorage.Reader.StructuredStorageReader(inputFilePath))
+        using (var reader = new MarkdownRenderer.Binary.StructuredStorage.Reader.StructuredStorageReader(inputFilePath))
         {
-            var ppt = new DocSharp.Binary.PptFileFormat.PowerpointDocument(reader);
-            using (var pptx = DocSharp.Binary.OpenXmlLib.PresentationML.PresentationDocument.Create(outputFilePath, DocSharp.Binary.OpenXmlLib.PresentationDocumentType.Presentation))
+            var ppt = new MarkdownRenderer.Binary.PptFileFormat.PowerpointDocument(reader);
+            using (var pptx = MarkdownRenderer.Binary.OpenXmlLib.PresentationML.PresentationDocument.Create(outputFilePath, MarkdownRenderer.Binary.OpenXmlLib.PresentationDocumentType.Presentation))
             {
-                DocSharp.Binary.PresentationMLMapping.Converter.Convert(ppt, pptx);
+                MarkdownRenderer.Binary.PresentationMLMapping.Converter.Convert(ppt, pptx);
             }
         }
     }

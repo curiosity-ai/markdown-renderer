@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,14 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>      
-    <ProjectReference Include="..\..\src\DocSharp.Binary\DocSharp.Binary.Doc\DocSharp.Binary.Doc.csproj" />
-    <ProjectReference Include="..\..\src\DocSharp.Binary\DocSharp.Binary.Ppt\DocSharp.Binary.Ppt.csproj" />
-    <ProjectReference Include="..\..\src\DocSharp.Binary\DocSharp.Binary.Xls\DocSharp.Binary.Xls.csproj" />
-    <ProjectReference Include="..\..\src\DocSharp.Docx\DocSharp.Docx.csproj" />
-    <ProjectReference Include="..\..\src\DocSharp.Markdown\DocSharp.Markdown.csproj" />
-    <ProjectReference Include="..\..\src\DocSharp.ImageSharp\DocSharp.ImageSharp.csproj" />
-    <ProjectReference Include="..\..\src\DocSharp.Renderer\DocSharp.Renderer.csproj" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MarkdownRenderer.Docx\MarkdownRenderer.Docx.csproj" />
+    <ProjectReference Include="..\..\src\MarkdownRenderer.Markdown\MarkdownRenderer.Markdown.csproj" />
   </ItemGroup>
 
 </Project>

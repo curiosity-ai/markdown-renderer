@@ -1,0 +1,6 @@
+namespace MarkdownRenderer.Wmf2Svg.Gdi;
+
+public interface IGdiPatternBrush : IGdiObject
+{
+    byte[] Pattern { get; }
+}

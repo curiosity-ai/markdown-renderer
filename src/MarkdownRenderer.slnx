@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="../samples/ConsoleApp1/ConsoleApp1.csproj" />
+  </Folder>
+  <Folder Name="/Solution items/">
+    <File Path="../.gitignore" />
+    <File Path="../LICENSE" />
+    <File Path="../LICENSE-Apache" />
+    <File Path="../README.md" />
+  </Folder>
+  <Project Path="MarkdownRenderer.Common/MarkdownRenderer.Common.csproj" />
+  <Project Path="MarkdownRenderer.Docx/MarkdownRenderer.Docx.csproj" />
+  <Project Path="MarkdownRenderer.Markdown/MarkdownRenderer.Markdown.csproj" />
+</Solution>

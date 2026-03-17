@@ -1,0 +1,210 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using MarkdownRenderer.Docx;
+using MarkdownRenderer.IO;
+using MarkdownRenderer.Markdown.Common;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Markdig.Renderers.Html;
+using Markdig.Syntax.Inlines;
+
+namespace Markdig.Renderers.Docx.Inlines;
+
+public class LinkInlineRenderer : DocxObjectRenderer<LinkInline>
+{
+    protected override void WriteObject(DocxDocumentRenderer renderer, LinkInline obj)
+    {
+        if (string.IsNullOrWhiteSpace(obj.Url))
+        {
+            renderer.WriteChildren(obj);
+            return;
+        }
+
+        if (obj.IsImage)
+        {
+            if (!renderer.SkipImages)
+            {
+                MarkdownRenderer.Markdown.Common.ImageHelpers.GetImageAttributes(obj, out long widthInTwips, out long heightInTwips);
+                ProcessImage(renderer, obj.Url!, obj.Label, obj.Title, widthInTwips, heightInTwips);
+            }
+        }
+        else
+        {
+            bool isAnchor = obj.Url!.StartsWith("#");
+            string anchorName = string.Empty;
+            Uri? uri = null;
+            if (isAnchor)
+            {
+                // Note: bookmarks are currently created in HeadingRenderer (for headings).
+                // It should be done in HtmlInline/HtmlBlock renderer too (for <a> tags),
+                // but it's not implemented yet.
+                anchorName = TryGetBookmark(renderer, obj.Url.Trim('#'));
+            }
+            else
+            {
+                uri = UriHelpers.NormalizeLinkUri(obj.Url, renderer.LinksBaseUri);
+            }
+
+            if (uri == null && anchorName == string.Empty)
+            {
+                // Don't create the hyperlink if no valid Uri or anchor was created.
+                renderer.WriteChildren(obj);
+                return;
+            }
+            
+            var linkId = $"L{OpenXmlHelpers.GetLinksCount(renderer.Document) + 1}";
+
+            Hyperlink hl;
+            if (isAnchor)
+            {
+                // Link to bookmark
+                hl = new Hyperlink()
+                {
+                    Anchor = anchorName
+                };
+            }
+            else
+            {
+                renderer.Document.MainDocumentPart?.AddHyperlinkRelationship(uri!, true, linkId);
+                hl = new Hyperlink()
+                {
+                    Id = linkId,
+                };
+            }
+
+            renderer.Cursor.Write(hl);
+            renderer.Cursor.GoInto(hl);
+            
+            renderer.TextStyle.Push(renderer.Styles.MarkdownStyles["Hyperlink"]);
+            renderer.WriteChildren(obj);
+            renderer.TextStyle.Pop();
+            
+            renderer.Cursor.PopAndAdvanceAfter(hl);
+        }
+    }
+
+    private void ProcessImage(DocxDocumentRenderer renderer, string url, string? label, string? title, long widthInTwips, long heightInTwips)
+    {
+        // Support "data:" URIs (base64 inline images)
+        if (!string.IsNullOrEmpty(url) && url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+        {
+            var comma = url.IndexOf(',');
+            if (comma > 0)
+            {
+                var metadata = url.Substring(5, comma - 5); // after "data:"
+                var isBase64 = metadata.IndexOf(";base64", StringComparison.OrdinalIgnoreCase) >= 0;
+                var dataPart = url.Substring(comma + 1);
+                if (isBase64)
+                {
+                    try
+                    {
+                        var base64 = Uri.UnescapeDataString(dataPart);
+                        var bytes = Convert.FromBase64String(base64);
+                        using (var ms = new MemoryStream(bytes))
+                        {
+                            InsertImage(renderer, ms, label, title, widthInTwips, heightInTwips);
+                        }
+                    }
+                    catch (FormatException)
+                    {
+                        #if DEBUG
+                        Debug.WriteLine("Invalid base64 image data");
+                        #endif
+                    }
+                }
+            }
+
+            return;
+        }
+
+        Uri? uri = UriHelpers.NormalizeImageUri(url, renderer.ImagesBaseUri);
+        if (uri != null)
+        {
+            try
+            {
+                if (uri.IsAbsoluteUri && uri.IsFile)
+                {
+                    using (var fs = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read))
+                    {
+                        InsertImage(renderer, fs, label, title, widthInTwips, heightInTwips);
+                    }
+                }
+                else if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                {
+                    // Only HTTP and HTTPS are supported for automatic download
+                    using (var stream = ResourceDownloader.GetDownloadStream(url))
+                    {
+                        if (stream != null)
+                        {
+                            InsertImage(renderer, stream, label, title, widthInTwips, heightInTwips);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //Probably non-existent file, inaccessible URL or permission issue, do not stop the conversion
+                #if DEBUG
+                Debug.WriteLine("InsertImage exception: " + ex.Message);
+                #endif
+            }
+        }
+    }
+
+    private void InsertImage(DocxDocumentRenderer renderer, Stream stream, string? label, string? title, long widthInTwips, long heightInTwips)
+    {
+        try
+        {
+            using (var tempStream = MarkdownRenderer.Markdown.Common.ImageHelpers.ConvertAndScaleImage(stream,
+                                                           out ImageFormat fileType,
+                                                           renderer.Document.GetEffectivePageSize(), 
+                                                           widthInTwips, heightInTwips,
+                                                           out long calculatedWidth, out long calculatedHeight,
+                                                           false, renderer.ImageConverter))
+            {
+                PartTypeInfo? imagePartType = fileType.ToImagePartType();
+                if (tempStream != null && imagePartType != null && imagePartType.HasValue && calculatedWidth > 0 && calculatedHeight > 0)
+                {
+                    tempStream.Position = 0;
+                    var imagePart = renderer.Document.MainDocumentPart?.AddImagePart(tempStream, imagePartType.Value);
+                    if (imagePart != null && renderer.Document.MainDocumentPart?.GetIdOfPart(imagePart) is string rId)
+                    {
+                        var imageElement = MarkdownRenderer.Docx.ImageHelpers.CreateImage(rId, calculatedWidth, calculatedHeight, (uint)(OpenXmlHelpers.GetImagesCount(renderer.Document) + 1), label, title);
+                        if (renderer.Cursor.Container is Run run)
+                        {
+                            renderer.Cursor.Write(imageElement);
+                        }
+                        else
+                        {
+                            renderer.Cursor.Write(new Run(imageElement));
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            //Do not stop the whole conversion
+#if DEBUG
+            Debug.WriteLine($"Exception in InsertImage: {ex.Message}");
+#endif
+            return;
+        }
+    }
+
+    private string TryGetBookmark(DocxDocumentRenderer renderer, string anchorId)
+    {
+        // To be improved
+        var bookmarkName = renderer.Document.MainDocumentPart?.Document?.Body?
+                           .Descendants<BookmarkStart>()
+                           .Select(bs => bs.Name)
+                           .Where(name => name != null &&
+                                          name.Value != null &&
+                                          name.Value.Equals(anchorId, StringComparison.OrdinalIgnoreCase));
+        return bookmarkName?.FirstOrDefault()?.Value ?? "";
+    }
+}

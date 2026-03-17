@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <!-- NuGet package -->
+  <PropertyGroup>
+    <AssemblyName>MarkdownRenderer.Markdown</AssemblyName>
+    <AssemblyTitle>MarkdownRenderer.Markdown</AssemblyTitle>
+    <PackageId>MarkdownRenderer.Markdown</PackageId>
+    <Title>MarkdownRenderer.Markdown</Title>
+    <Description>.NET library for converting documents. The MarkdownRenderer.Markdown package provides Markdown to DOCX and RTF conversion.</Description>
+    <PackageTags>markdown docx rtf convert converter markdig renderer openxml office word MarkdownRenderer md</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Docx\Resources\markdown-template.docx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Docx\Resources\markdown-template.docx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MarkdownRenderer.Docx\MarkdownRenderer.Docx.csproj" />
+  </ItemGroup>
+
+</Project>

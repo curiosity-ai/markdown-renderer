@@ -1,0 +1,20 @@
+using System.IO;
+using System.Text;
+using DocumentFormat.OpenXml.Packaging;
+
+namespace MarkdownRenderer.Docx;
+
+public interface IDocxToTextConverter
+{
+    /// <summary>
+    /// Convert a DOCX file to the output format.
+    /// </summary>
+    /// <param name="inputDocument">The WordprocessingDocument to use.</param>
+    /// <param name="output">The output text writer.</param>
+    void Convert(WordprocessingDocument inputDocument, TextWriter output);
+
+    /// <summary>
+    /// Default encoding to use when writing an output file.
+    /// </summary>
+    Encoding DefaultEncoding { get; }
+}

@@ -1,49 +1,49 @@
-# DocSharp
+# MarkdownRenderer
 
-DocSharp is a pure C# library to convert between document formats without Office interop or native dependencies (except for some special packages, see [requirements](#requirements)).
+MarkdownRenderer is a pure C# library to convert between document formats without Office interop or native dependencies (except for some special packages, see [requirements](#requirements)).
 
 The following packages are currently available:
 
-- DocSharp.Binary: convert Office 97-2003 binary documents (doc, xls, ppt) to OpenXML documents (docx, xlsx, pptx). This is a fork of the abandoned [b2xtranslator project](https://github.com/EvolutionJobs/b2xtranslator) which provides critical fixes.  
+- MarkdownRenderer.Binary: convert Office 97-2003 binary documents (doc, xls, ppt) to OpenXML documents (docx, xlsx, pptx). This is a fork of the abandoned [b2xtranslator project](https://github.com/EvolutionJobs/b2xtranslator) which provides critical fixes.  
 Note: pre-97 formats (not documented) and XLSB (very different) are not supported.
-- DocSharp.Docx: convert DOCX to RTF, HTML, Markdown and plain text (.txt). Possible applications include generating Open XML documents in C# and exporting for other editors/services, or loading Microsoft Word documents in a RichTextBox / RichEditBox control.
-- DocSharp.Markdown: convert Markdown to DOCX or RTF using custom Markdig renderers.
+- MarkdownRenderer.Docx: convert DOCX to RTF, HTML, Markdown and plain text (.txt). Possible applications include generating Open XML documents in C# and exporting for other editors/services, or loading Microsoft Word documents in a RichTextBox / RichEditBox control.
+- MarkdownRenderer.Markdown: convert Markdown to DOCX or RTF using custom Markdig renderers.
 
 Packages can be installed via NuGet:  
-[![NuGet](https://img.shields.io/nuget/vpre/DocSharp.Binary.Doc?style=flat-square&label=DocSharp.Binary.Doc)](https://www.nuget.org/packages/DocSharp.Binary.Doc/) 
-[![NuGet](https://img.shields.io/nuget/vpre/DocSharp.Binary.Xls?style=flat-square&label=DocSharp.Binary.Xls)](https://www.nuget.org/packages/DocSharp.Binary.Xls/)
-[![NuGet](https://img.shields.io/nuget/vpre/DocSharp.Binary.Ppt?style=flat-square&label=DocSharp.Binary.Ppt)](https://www.nuget.org/packages/DocSharp.Binary.Ppt/)
-[![NuGet](https://img.shields.io/nuget/vpre/DocSharp.Docx?style=flat-square&label=DocSharp.Docx)](https://www.nuget.org/packages/DocSharp.Docx/)
-[![NuGet](https://img.shields.io/nuget/vpre/DocSharp.Markdown?style=flat-square&label=DocSharp.Markdown)](https://www.nuget.org/packages/DocSharp.Markdown/)
+[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Binary.Doc?style=flat-square&label=MarkdownRenderer.Binary.Doc)](https://www.nuget.org/packages/MarkdownRenderer.Binary.Doc/) 
+[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Binary.Xls?style=flat-square&label=MarkdownRenderer.Binary.Xls)](https://www.nuget.org/packages/MarkdownRenderer.Binary.Xls/)
+[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Binary.Ppt?style=flat-square&label=MarkdownRenderer.Binary.Ppt)](https://www.nuget.org/packages/MarkdownRenderer.Binary.Ppt/)
+[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Docx?style=flat-square&label=MarkdownRenderer.Docx)](https://www.nuget.org/packages/MarkdownRenderer.Docx/)
+[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Markdown?style=flat-square&label=MarkdownRenderer.Markdown)](https://www.nuget.org/packages/MarkdownRenderer.Markdown/)
 
-The optional extra packages [DocSharp.ImageSharp](https://www.nuget.org/packages/DocSharp.ImageSharp/), [DocSharp.SystemDrawing](https://www.nuget.org/packages/DocSharp.SystemDrawing/), DocSharp.MagickNET (not published yet) allow to convert unsupported images (e.g. GIF / TIFF for DOCX -> RTF or WMF / EMF / TIFF for DOCX -> Markdown/HTML). Each of these has pros and cons, the choice depends on your requirements. More information can be found in the [Wiki](https://github.com/manfromarce/DocSharp/wiki/Convert-images).
+The optional extra packages [MarkdownRenderer.ImageSharp](https://www.nuget.org/packages/MarkdownRenderer.ImageSharp/), [MarkdownRenderer.SystemDrawing](https://www.nuget.org/packages/MarkdownRenderer.SystemDrawing/), MarkdownRenderer.MagickNET (not published yet) allow to convert unsupported images (e.g. GIF / TIFF for DOCX -> RTF or WMF / EMF / TIFF for DOCX -> Markdown/HTML). Each of these has pros and cons, the choice depends on your requirements. More information can be found in the [Wiki](https://github.com/manfromarce/MarkdownRenderer/wiki/Convert-images).
 
 The codebase also contains few experimental converters that are not ready and not published on NuGet yet:  
-- RTF to DOCX converter class in the DocSharp.Docx project
-- DocSharp.Renderer: provides DOCX to PDF/images/SVG/XPS conversion using [QuestPDF](https://github.com/QuestPDF/QuestPDF).  
+- RTF to DOCX converter class in the MarkdownRenderer.Docx project
+- MarkdownRenderer.Renderer: provides DOCX to PDF/images/SVG/XPS conversion using [QuestPDF](https://github.com/QuestPDF/QuestPDF).  
 
 There is no common DOM to manipulate or generate documents, this library is mainly for conversion. Some helper methods on top of the [Open XML SDK](https://github.com/dotnet/Open-XML-SDK) and format-specific writers are available, but they are mostly intended for internal use; however they could be extended/improved in the future.  
 You can consider using the Open XML SDK itself or other <a href="#recommended_libraries">recommended libraries</a> for documents creation and manipulation. Some of these are used in the sample app to test two-steps conversions, compare results, or generate documents in multiple formats with the same code.  
-DocSharp provides methods to accept/return a WordprocessingDocument directly (in addition to file path / Stream / byte array), and a SaveTo extension method for WordprocessingDocument.
+MarkdownRenderer provides methods to accept/return a WordprocessingDocument directly (in addition to file path / Stream / byte array), and a SaveTo extension method for WordprocessingDocument.
 
 ### Supported features
 
 - Binary formats: most doc/xls/ppt features were supported by the original project, but exceptions occurred when using .NET (rather than .NET Framework) or loading specific documents. The most noticeable issues have been fixed, but more work is needed to make the library reliable; if you find other bugs, you are welcome to open an issue (please attach a sample file if the issue only occurs for specific documents).
-- DOCX, RTF, Markdown: supported elements vary depending on input and output formats, see [Supported features](https://github.com/manfromarce/DocSharp/blob/main/documentation/Supported_features.MD) for an overview.
+- DOCX, RTF, Markdown: supported elements vary depending on input and output formats, see [Supported features](https://github.com/manfromarce/MarkdownRenderer/blob/main/documentation/Supported_features.MD) for an overview.
 
 <a id="Requirements"></a>
 
 ### Requirements
 
 - Supported targets are .NET 8, 9, 10 and .NET Framework 4.6.2 (minimum netfx version still supported).  
-- DocSharp.SystemDrawing is for Windows only (.NET Framework or net*-windows), as System.Drawing.Common is based on GDI+ and only supported on Windows since .NET 6.
-- DocSharp.ImageSharp is cross-platform for .NET 8+, as ImageSharp is fully managed C# code but does not support .NET Framework.
-- DocSharp.MagickNET is cross-platform for both .NET and .NET Framework, but Magick.NET bundles many native libraries that might not work on non-desktop platforms (Android / iOS / WASM)
-- DocSharp.Renderer depends on QuestPDF, which currently supports Windows x64 / x86, macOS x64 / ARM64, Linux x64 / ARM64. Windows ARM64, Android, iOS are not supported yet, due to a custom Skia build. Plus, the XPS generation is only supported on Windows. 
+- MarkdownRenderer.SystemDrawing is for Windows only (.NET Framework or net*-windows), as System.Drawing.Common is based on GDI+ and only supported on Windows since .NET 6.
+- MarkdownRenderer.ImageSharp is cross-platform for .NET 8+, as ImageSharp is fully managed C# code but does not support .NET Framework.
+- MarkdownRenderer.MagickNET is cross-platform for both .NET and .NET Framework, but Magick.NET bundles many native libraries that might not work on non-desktop platforms (Android / iOS / WASM)
+- MarkdownRenderer.Renderer depends on QuestPDF, which currently supports Windows x64 / x86, macOS x64 / ARM64, Linux x64 / ARM64. Windows ARM64, Android, iOS are not supported yet, due to a custom Skia build. Plus, the XPS generation is only supported on Windows. 
 
 ### Usage
 
-You can refer to the project [Wiki](https://github.com/manfromarce/DocSharp/wiki) or [sample apps](https://github.com/manfromarce/DocSharp/tree/main/samples/).
+You can refer to the project [Wiki](https://github.com/manfromarce/MarkdownRenderer/wiki) or [sample apps](https://github.com/manfromarce/MarkdownRenderer/tree/main/samples/).
 
 ### Roadmap
 
@@ -58,12 +58,12 @@ You can refer to the project [Wiki](https://github.com/manfromarce/DocSharp/wiki
 
 Dependencies: 
 - [Open XML SDK](https://github.com/dotnet/Open-XML-SDK)
-- [Markdig](https://github.com/xoofx/markdig) - for DocSharp.Markdown
-- [ImageSharp](https://github.com/SixLabors/ImageSharp) and [VectSharp](https://github.com/arklumpus/VectSharp) - for DocSharp.ImageSharp
-- System.Drawing.Common and [SVG.NET](https://github.com/svg-net/SVG) - for DocSharp.SystemDrawing
-- [CoreJ2K](https://github.com/cinderblocks/CoreJ2K) - for JPEG2000 support in both DocSharp.ImageSharp and DocSharp.System.Drawing
-- [Magick.NET-Q8-AnyCPU](https://github.com/dlemstra/Magick.NET) - for DocSharp.MagickNET
-- [QuestPDF](https://github.com/QuestPDF/QuestPDF) - for DocSharp.Renderer
+- [Markdig](https://github.com/xoofx/markdig) - for MarkdownRenderer.Markdown
+- [ImageSharp](https://github.com/SixLabors/ImageSharp) and [VectSharp](https://github.com/arklumpus/VectSharp) - for MarkdownRenderer.ImageSharp
+- System.Drawing.Common and [SVG.NET](https://github.com/svg-net/SVG) - for MarkdownRenderer.SystemDrawing
+- [CoreJ2K](https://github.com/cinderblocks/CoreJ2K) - for JPEG2000 support in both MarkdownRenderer.ImageSharp and MarkdownRenderer.System.Drawing
+- [Magick.NET-Q8-AnyCPU](https://github.com/dlemstra/Magick.NET) - for MarkdownRenderer.MagickNET
+- [QuestPDF](https://github.com/QuestPDF/QuestPDF) - for MarkdownRenderer.Renderer
 
 Forked: 
 - [b2xtranslator](https://github.com/EvolutionJobs/b2xtranslator)
@@ -105,18 +105,18 @@ Other recommended libraries (some of these are used in the sample app, *not* dep
     + HTML to Open XML: [Html2OpenXml](https://github.com/onizet/html2openxml) (DOCX), [HtmlToExcel](https://github.com/StrutTower/HtmlToExcel)
     + HTML to Markdown: [ReverseMarkdown](https://github.com/mysticmind/reversemarkdown-net)
     + Markdown rendering: [Markdig](https://github.com/xoofx/markdig), [QuestPDF.Markdown](https://github.com/christiaanderidder/QuestPDF.Markdown), [VectSharp.Markdown + VectSharp.PDF](https://github.com/arklumpus/VectSharp), [MarkdownToPdf](https://github.com/geertjanthomas/MarkdownToPdf)
-    + AsciiDoc rendering: [NAsciidoc](https://github.com/rmannibucau/NAsciidoc), [AsciiDocSharp](https://github.com/AsciiDocSharp/AsciiDocSharp)
+    + AsciiDoc rendering: [NAsciidoc](https://github.com/rmannibucau/NAsciidoc), [AsciiMarkdownRenderer](https://github.com/AsciiMarkdownRenderer/AsciiMarkdownRenderer)
     + PDF rendering: [PDFtoImage](https://github.com/sungaila/PDFtoImage), [PdfPig.Rendering.Skia](https://github.com/BobLd/PdfPig.Rendering.Skia), [Melville.Pdf](https://github.com/DrJohnMelville/Pdf), [PdfToSvg.NET](https://github.com/dmester/pdftosvg.net)
 
 ### License
 
-DocSharp is licensed under MIT license and can be used for both open source and commercial projects.  
+MarkdownRenderer is licensed under MIT license and can be used for both open source and commercial projects.  
 
-DocSharp.ImageSharp and DocSharp.MagickNET are licensed under [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.txt).  
+MarkdownRenderer.ImageSharp and MarkdownRenderer.MagickNET are licensed under [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.txt).  
 ImageSharp has a dual license, please visit [their repository](https://github.com/SixLabors/ImageSharp) for more information. 
 VectSharp is used under LGPL in this project (GPL packages are not used).  
 
-DocSharp.Renderer is itself licensed under MIT, but depends on QuestPDF which has additional requirements for companies and may require purchasing a license. Please check [their repository](https://github.com/QuestPDF/QuestPDF?tab=readme-ov-file#fair-and-sustainable-license) for information on the Community and Commercial licenses.  
+MarkdownRenderer.Renderer is itself licensed under MIT, but depends on QuestPDF which has additional requirements for companies and may require purchasing a license. Please check [their repository](https://github.com/QuestPDF/QuestPDF?tab=readme-ov-file#fair-and-sustainable-license) for information on the Community and Commercial licenses.  
 
 ### Contribute
 
