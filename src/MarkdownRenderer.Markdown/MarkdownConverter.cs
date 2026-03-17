@@ -41,6 +41,12 @@ public class MarkdownConverter
     public bool SkipImages { get; set; } = false;
 
     /// <summary>
+    /// If set to true, the converter will try to automatically download external resources (e.g. images) via HTTP.
+    /// Disabled by default.
+    /// </summary>
+    public bool EnableExternalResources { get; set; } = false;
+
+    /// <summary>
     /// Image converter to preserve WEBP and other image types when rendering Markdown. 
     /// If the MarkdownRenderer.ImageSharp or MarkdownRenderer.SystemDrawing package is installed, 
     /// this property can be set to a new instance of ImageSharpConverter or SystemDrawingConverter. 
@@ -138,6 +144,7 @@ public class MarkdownConverter
             ImagesBaseUri = this.ImagesBaseUri,
             LinksBaseUri = this.LinksBaseUri,
             SkipImages = this.SkipImages,
+            EnableExternalResources = this.EnableExternalResources,
             ImageConverter = this.ImageConverter
         };
         renderer.Render(markdown.Document);
@@ -182,6 +189,7 @@ public class MarkdownConverter
             ImagesBaseUri = this.ImagesBaseUri,
             LinksBaseUri = this.LinksBaseUri,
             SkipImages = this.SkipImages,
+            EnableExternalResources = this.EnableExternalResources,
             ImageConverter = this.ImageConverter
         };
         renderer.Render(markdown.Document);
@@ -241,6 +249,7 @@ public class MarkdownConverter
             ImagesBaseUri = this.ImagesBaseUri,
             LinksBaseUri = this.LinksBaseUri,
             SkipImages = this.SkipImages,
+            EnableExternalResources = this.EnableExternalResources,
             ImageConverter = this.ImageConverter
         };
         renderer.Render(markdown.Document);
@@ -406,7 +415,8 @@ public class MarkdownConverter
             ImagesBaseUri = this.ImagesBaseUri,
             LinksBaseUri = this.LinksBaseUri,
             ImageConverter = this.ImageConverter,
-            SkipImages = this.SkipImages
+            SkipImages = this.SkipImages,
+            EnableExternalResources = this.EnableExternalResources
         };
         // Apply page settings for RTF if configured
         if (PageSize != null)

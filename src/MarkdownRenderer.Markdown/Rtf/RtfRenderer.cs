@@ -22,6 +22,8 @@ public class RtfRenderer : RendererBase
 
     public bool SkipImages { get; set; } = false;
 
+    public bool EnableExternalResources { get; set; } = false;
+
     public IImageConverter? ImageConverter { get; set; } = null;
 
     public MarkdownToRtfSettings Settings;
