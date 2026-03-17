@@ -11,4 +11,5 @@
   <Project Path="MarkdownRenderer.Common/MarkdownRenderer.Common.csproj" />
   <Project Path="MarkdownRenderer.Docx/MarkdownRenderer.Docx.csproj" />
   <Project Path="MarkdownRenderer.Markdown/MarkdownRenderer.Markdown.csproj" />
+  <Project Path="MarkdownRenderer.Slides/MarkdownRenderer.Slides.csproj" />
 </Solution>
