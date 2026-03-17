@@ -601,7 +601,7 @@ namespace OpenXmlPowerTools
                         new XElement(ns + "sldMasterIdLst"),
                         new XElement(ns + "sldIdLst"),
                         new XElement(ns + "notesSz", new XAttribute("cx", "6858000"), new XAttribute("cy", "9144000")))));
-                doc.Close();
+                doc.Save();
                 return new OpenXmlMemoryStreamDocument(stream);
             }
         }
