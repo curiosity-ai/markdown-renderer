@@ -25,6 +25,8 @@ public class DocxDocumentRenderer : RendererBase
 
     public bool SkipImages { get; set; } = false;
 
+    public bool EnableExternalResources { get; set; } = false;
+
     public WordprocessingDocument Document { get; }
     
     public DocumentTreeCursor Cursor { get; set; }

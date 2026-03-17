@@ -135,12 +135,15 @@ public class LinkInlineRenderer : DocxObjectRenderer<LinkInline>
                 }
                 else if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
                 {
-                    // Only HTTP and HTTPS are supported for automatic download
-                    using (var stream = ResourceDownloader.GetDownloadStream(url))
+                    if (renderer.EnableExternalResources)
                     {
-                        if (stream != null)
+                        // Only HTTP and HTTPS are supported for automatic download
+                        using (var stream = ResourceDownloader.GetDownloadStream(url))
                         {
-                            InsertImage(renderer, stream, label, title, widthInTwips, heightInTwips);
+                            if (stream != null)
+                            {
+                                InsertImage(renderer, stream, label, title, widthInTwips, heightInTwips);
+                            }
                         }
                     }
                 }
