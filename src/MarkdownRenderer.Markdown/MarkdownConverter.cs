@@ -218,6 +218,12 @@ public class MarkdownConverter
         PresentationPart presentationPart = presentationDoc.AddPresentationPart();
         presentationPart.Presentation = new Presentation();
 
+        // The correct OpenXML element order is: SlideMasterIdList, SlideIdList, SlideSize, NotesSize, DefaultTextStyle...
+        var slideMasterIdList = new SlideMasterIdList();
+        presentationPart.Presentation.AppendChild(slideMasterIdList);
+        var slideIdList = new SlideIdList();
+        presentationPart.Presentation.AppendChild(slideIdList);
+
         // Add SlideSize
         presentationPart.Presentation.AppendChild(new SlideSize() { Cx = 9144000, Cy = 6858000, Type = SlideSizeValues.Screen4x3 });
         presentationPart.Presentation.AppendChild(new NotesSize() { Cx = 6858000, Cy = 9144000 });
@@ -282,10 +288,26 @@ public class MarkdownConverter
                 new D.MinorFont(new D.LatinFont() { Typeface = "Calibri" }, new D.EastAsianFont() { Typeface = "" }, new D.ComplexScriptFont() { Typeface = "" })
             ) { Name = "Office" },
             new D.FormatScheme(
-                new D.FillStyleList(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
-                new D.LineStyleList(new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))),
-                new D.EffectStyleList(new D.EffectStyle(new D.EffectList())),
-                new D.BackgroundFillStyleList(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))
+                new D.FillStyleList(
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })
+                ),
+                new D.LineStyleList(
+                    new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
+                    new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
+                    new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))
+                ),
+                new D.EffectStyleList(
+                    new D.EffectStyle(new D.EffectList()),
+                    new D.EffectStyle(new D.EffectList()),
+                    new D.EffectStyle(new D.EffectList())
+                ),
+                new D.BackgroundFillStyleList(
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })
+                )
             ) { Name = "Office" }
         ));
         themePart.Theme.AppendChild(new D.ObjectDefaults());
@@ -377,7 +399,7 @@ public class MarkdownConverter
         slideMasterPart.SlideMaster.SlideLayoutIdList!.AppendChild(new SlideLayoutId() { Id = 2147483650, RelationshipId = slideMasterPart.GetIdOfPart(blankLayoutPart) });
 
         // Link Slide Master to Presentation
-        presentationPart.Presentation.AppendChild(new SlideMasterIdList(new SlideMasterId() { Id = 2147483648, RelationshipId = presentationPart.GetIdOfPart(slideMasterPart) }));
+        presentationPart.Presentation.SlideMasterIdList!.AppendChild(new SlideMasterId() { Id = 2147483648, RelationshipId = presentationPart.GetIdOfPart(slideMasterPart) });
     }
 
     /// <summary>
