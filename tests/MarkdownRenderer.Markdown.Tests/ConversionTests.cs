@@ -1,4 +1,5 @@
 using System.IO;
+using DocumentFormat.OpenXml.Presentation;
 using Xunit;
 using MarkdownRenderer.Markdown;
 
@@ -67,7 +68,7 @@ End of slide
             using var ms = new MemoryStream();
 
             // Act & Assert
-            var ex = Record.Exception(() => converter.ToSlides(source, ms));
+            var ex = Record.Exception(() => converter.ToSlides(source, SlideSizeValues.Screen16x9, ms));
             Assert.Null(ex);
             Assert.True(ms.Length > 0);
         }
@@ -79,7 +80,7 @@ End of slide
             var source = MarkdownSource.FromMarkdownString(markdownSample);
 
             // Act & Assert
-            var bytes = converter.ToSlidesBytes(source);
+            var bytes = converter.ToSlidesBytes(source, SlideSizeValues.Screen16x9);
             Assert.NotNull(bytes);
             Assert.True(bytes.Length > 0);
         }
