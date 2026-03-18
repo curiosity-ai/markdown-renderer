@@ -282,10 +282,26 @@ public class MarkdownConverter
                 new D.MinorFont(new D.LatinFont() { Typeface = "Calibri" }, new D.EastAsianFont() { Typeface = "" }, new D.ComplexScriptFont() { Typeface = "" })
             ) { Name = "Office" },
             new D.FormatScheme(
-                new D.FillStyleList(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
-                new D.LineStyleList(new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))),
-                new D.EffectStyleList(new D.EffectStyle(new D.EffectList())),
-                new D.BackgroundFillStyleList(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))
+                new D.FillStyleList(
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })
+                ),
+                new D.LineStyleList(
+                    new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
+                    new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
+                    new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))
+                ),
+                new D.EffectStyleList(
+                    new D.EffectStyle(new D.EffectList()),
+                    new D.EffectStyle(new D.EffectList()),
+                    new D.EffectStyle(new D.EffectList())
+                ),
+                new D.BackgroundFillStyleList(
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })
+                )
             ) { Name = "Office" }
         ));
         themePart.Theme.AppendChild(new D.ObjectDefaults());
@@ -377,7 +393,7 @@ public class MarkdownConverter
         slideMasterPart.SlideMaster.SlideLayoutIdList!.AppendChild(new SlideLayoutId() { Id = 2147483650, RelationshipId = slideMasterPart.GetIdOfPart(blankLayoutPart) });
 
         // Link Slide Master to Presentation
-        presentationPart.Presentation.AppendChild(new SlideMasterIdList(new SlideMasterId() { Id = 2147483648, RelationshipId = presentationPart.GetIdOfPart(slideMasterPart) }));
+        presentationPart.Presentation.InsertAt(new SlideMasterIdList(new SlideMasterId() { Id = 2147483648, RelationshipId = presentationPart.GetIdOfPart(slideMasterPart) }), 0);
     }
 
     /// <summary>
