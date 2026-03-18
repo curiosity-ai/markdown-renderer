@@ -81,10 +81,14 @@ public class DocxDocumentRenderer : RendererBase
         ObjectRenderers.Add(new FooterBlockRenderer());
         ObjectRenderers.Add(new FootnoteGroupRenderer());
         ObjectRenderers.Add(new FootnoteLinkRenderer());
-        // ObjectRenderers.Add(new DefinitionListRenderer());
+        ObjectRenderers.Add(new DefinitionListRenderer());
+        ObjectRenderers.Add(new DefinitionTermRenderer());
+        ObjectRenderers.Add(new DefinitionItemRenderer());
         // ObjectRenderers.Add(new FigureRenderer());
-        // ObjectRenderers.Add(new MathInlineRenderer()); // LaTex blocks are not supported
-        // ObjectRenderers.Add(new MathBlockRenderer());
+        ObjectRenderers.Add(new MathInlineRenderer()); // LaTex blocks are not supported
+        ObjectRenderers.Add(new MathBlockRenderer());
+        ObjectRenderers.Add(new EmojiInlineRenderer());
+        ObjectRenderers.Add(new CustomContainerRenderer());
     }
 
     public void ForceCloseParagraph()
