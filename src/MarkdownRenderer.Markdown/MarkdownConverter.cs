@@ -218,23 +218,7 @@ public class MarkdownConverter
         PresentationPart presentationPart = presentationDoc.AddPresentationPart();
         presentationPart.Presentation = new Presentation();
 
-        // Add SlideSize
-        presentationPart.Presentation.AppendChild(new SlideSize() { Cx = 9144000, Cy = 6858000, Type = SlideSizeValues.Screen4x3 });
-        presentationPart.Presentation.AppendChild(new NotesSize() { Cx = 6858000, Cy = 9144000 });
 
-        // Add DefaultTextStyle
-        presentationPart.Presentation.AppendChild(new DefaultTextStyle(
-            new D.DefaultParagraphProperties(new D.DefaultRunProperties() { Language = "en-US" }),
-            new D.Level1ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 0, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
-            new D.Level2ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 457200, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
-            new D.Level3ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 914400, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
-            new D.Level4ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 1371600, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
-            new D.Level5ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 1828800, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
-            new D.Level6ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 2286000, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
-            new D.Level7ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 2743200, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
-            new D.Level8ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 3200400, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
-            new D.Level9ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 3657600, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false }
-        ));
 
         // Create Presentation Properties
         PresentationPropertiesPart presPropsPart = presentationPart.AddNewPart<PresentationPropertiesPart>();
@@ -282,10 +266,26 @@ public class MarkdownConverter
                 new D.MinorFont(new D.LatinFont() { Typeface = "Calibri" }, new D.EastAsianFont() { Typeface = "" }, new D.ComplexScriptFont() { Typeface = "" })
             ) { Name = "Office" },
             new D.FormatScheme(
-                new D.FillStyleList(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
-                new D.LineStyleList(new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))),
-                new D.EffectStyleList(new D.EffectStyle(new D.EffectList())),
-                new D.BackgroundFillStyleList(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))
+                new D.FillStyleList(
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })
+                ),
+                new D.LineStyleList(
+                    new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
+                    new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })),
+                    new D.Outline(new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }))
+                ),
+                new D.EffectStyleList(
+                    new D.EffectStyle(new D.EffectList()),
+                    new D.EffectStyle(new D.EffectList()),
+                    new D.EffectStyle(new D.EffectList())
+                ),
+                new D.BackgroundFillStyleList(
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor }),
+                    new D.SolidFill(new D.SchemeColor() { Val = D.SchemeColorValues.PhColor })
+                )
             ) { Name = "Office" }
         ));
         themePart.Theme.AppendChild(new D.ObjectDefaults());
@@ -378,6 +378,24 @@ public class MarkdownConverter
 
         // Link Slide Master to Presentation
         presentationPart.Presentation.AppendChild(new SlideMasterIdList(new SlideMasterId() { Id = 2147483648, RelationshipId = presentationPart.GetIdOfPart(slideMasterPart) }));
+
+        // Add SlideSize
+        presentationPart.Presentation.AppendChild(new SlideSize() { Cx = 9144000, Cy = 6858000, Type = SlideSizeValues.Screen4x3 });
+        presentationPart.Presentation.AppendChild(new NotesSize() { Cx = 6858000, Cy = 9144000 });
+
+        // Add DefaultTextStyle
+        presentationPart.Presentation.AppendChild(new DefaultTextStyle(
+            new D.DefaultParagraphProperties(new D.DefaultRunProperties() { Language = "en-US" }),
+            new D.Level1ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 0, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level2ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 457200, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level3ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 914400, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level4ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 1371600, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level5ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 1828800, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level6ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 2286000, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level7ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 2743200, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level8ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 3200400, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level9ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 3657600, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false }
+        ));
     }
 
     /// <summary>

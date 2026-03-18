@@ -86,7 +86,15 @@ public class SlideDocumentRenderer : RendererBase
         if (slideIdList == null)
         {
             slideIdList = new P.SlideIdList();
-            PresentationPart.Presentation.Append(slideIdList);
+            var slideMasterIdList = PresentationPart.Presentation.SlideMasterIdList;
+            if (slideMasterIdList != null)
+            {
+                PresentationPart.Presentation.InsertAfter(slideIdList, slideMasterIdList);
+            }
+            else
+            {
+                PresentationPart.Presentation.PrependChild(slideIdList);
+            }
         }
 
         slideIdList.Append(new P.SlideId()
