@@ -1,7 +1,11 @@
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Markdig;
+using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
+using Markdig.Syntax.Inlines;
 
 namespace MarkdownRenderer.Markdown;
 
@@ -58,6 +62,7 @@ public class MarkdownSource
 
     internal static readonly MarkdownPipeline DefaultPipeline = new MarkdownPipelineBuilder()
                                                                         .UseAdvancedExtensions()
+                                                                        .UseYamlFrontMatter()
                                                                         .UseEmojiAndSmiley()
                                                                         .Build();
 
@@ -86,6 +91,62 @@ public class MarkdownSource
     public static implicit operator MarkdownSource(Stream stream)
     {
         return MarkdownSource.FromStream(stream);
+    }
+
+    /// <summary>
+    /// Attempts to extract the title from the markdown input. It looks for a title field in the
+    /// YAML frontmatter first, and if not found, it returns the text of the first header.
+    /// </summary>
+    /// <param name="markdown">The markdown input</param>
+    /// <returns>The title, or null if no title was found</returns>
+    public static string? TryGetTitle(string markdown)
+    {
+        if (string.IsNullOrWhiteSpace(markdown)) return null;
+
+        var document = Markdig.Markdown.Parse(markdown, DefaultPipeline);
+
+        foreach (var block in document)
+        {
+            if (block is YamlFrontMatterBlock yamlBlock)
+            {
+                var yaml = yamlBlock.Lines.ToString();
+                var match = Regex.Match(yaml, @"^title:\s*(.*)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                if (match.Success)
+                {
+                    var title = match.Groups[1].Value.Trim().Trim('"', '\'');
+                    if (!string.IsNullOrWhiteSpace(title))
+                    {
+                        return title;
+                    }
+                }
+            }
+            else if (block is HeadingBlock heading)
+            {
+                if (heading.Inline != null)
+                {
+                    var textBuilder = new StringBuilder();
+                    foreach (var inline in heading.Inline)
+                    {
+                        if (inline is LiteralInline literal)
+                        {
+                            textBuilder.Append(literal.Content.ToString());
+                        }
+                        else if (inline is CodeInline code)
+                        {
+                            textBuilder.Append(code.Content);
+                        }
+                    }
+
+                    var text = textBuilder.ToString();
+                    if (!string.IsNullOrWhiteSpace(text))
+                    {
+                        return text;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }
 
