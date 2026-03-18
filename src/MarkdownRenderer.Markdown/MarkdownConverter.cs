@@ -77,13 +77,13 @@ public class MarkdownConverter
     /// </summary>
     /// <param name="markdown">The input markdown source.</param>
     /// <param name="outputFilePath">The output file path.</param>
-    public void ToSlides(MarkdownSource markdown, string outputFilePath)
+    public void ToSlides(MarkdownSource markdown, SlideSizeValues targetSize, string outputFilePath)
     {
         using (var ms = new MemoryStream())
         {
             using (var document = PresentationDocument.Create(ms, PresentationDocumentType.Presentation))
             {
-                InitializePresentation(document);
+                InitializePresentation(document, targetSize);
                 var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
                 {
                     ImagesBaseUri = this.ImagesBaseUri,
@@ -105,13 +105,13 @@ public class MarkdownConverter
     /// </summary>
     /// <param name="markdown">The input markdown source.</param>
     /// <param name="outputStream">The output stream.</param>
-    public void ToSlides(MarkdownSource markdown, Stream outputStream)
+    public void ToSlides(MarkdownSource markdown, SlideSizeValues targetSize, Stream outputStream)
     {
         using (var ms = new MemoryStream())
         {
             using (var document = PresentationDocument.Create(ms, PresentationDocumentType.Presentation))
             {
-                InitializePresentation(document);
+                InitializePresentation(document, targetSize);
                 var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
                 {
                     ImagesBaseUri = this.ImagesBaseUri,
@@ -208,7 +208,7 @@ public class MarkdownConverter
         }
     }
 
-    private void InitializePresentation(PresentationDocument presentationDoc)
+    private void InitializePresentation(PresentationDocument presentationDoc, SlideSizeValues slideSizeValues)
     {
         // Core File Properties
         presentationDoc.PackageProperties.Creator = "MarkdownRenderer";
@@ -219,7 +219,7 @@ public class MarkdownConverter
         presentationPart.Presentation = new Presentation();
 
         // Add SlideSize
-        presentationPart.Presentation.AppendChild(new SlideSize() { Cx = 9144000, Cy = 6858000, Type = SlideSizeValues.Screen4x3 });
+        presentationPart.Presentation.AppendChild(new SlideSize() { Cx = 9144000, Cy = 5143500, Type = slideSizeValues });
         presentationPart.Presentation.AppendChild(new NotesSize() { Cx = 6858000, Cy = 9144000 });
 
         // Add DefaultTextStyle
@@ -400,11 +400,11 @@ public class MarkdownConverter
     /// Convert Markdown to PPTX slides bytes.
     /// </summary>
     /// <param name="markdown">The input markdown source.</param>
-    public byte[] ToSlidesBytes(MarkdownSource markdown)
+    public byte[] ToSlidesBytes(MarkdownSource markdown, SlideSizeValues targetSize)
     {
         using (var ms = new MemoryStream())
         {
-            ToSlides(markdown, ms);
+            ToSlides(markdown, targetSize, ms);
             return ms.ToArray();
         }
     }
@@ -468,7 +468,9 @@ public class MarkdownConverter
     public WordprocessingDocument ToWordprocessingDocument(MarkdownSource markdown, Stream outputStream, WordprocessingDocumentType openXmlDocumentType = WordprocessingDocumentType.Document, bool append = false)
     {
         WordprocessingDocument document;
+        
         var defaultStyles = new DocumentStyles();
+
         if (append)
         {
             document = WordprocessingDocument.Open(outputStream, true);
@@ -478,6 +480,7 @@ public class MarkdownConverter
         {
             document = DocxTemplateHelper.BuildFromDefaultTemplate(outputStream, openXmlDocumentType);
         }
+
         var renderer = new DocxDocumentRenderer(document, defaultStyles)
         {
             ImagesBaseUri = this.ImagesBaseUri,
