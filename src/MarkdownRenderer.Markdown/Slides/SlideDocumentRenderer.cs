@@ -86,7 +86,7 @@ public class SlideDocumentRenderer : RendererBase
         if (slideIdList == null)
         {
             slideIdList = new P.SlideIdList();
-            PresentationPart.Presentation.Append(slideIdList);
+            PresentationPart.Presentation.InsertAfter(slideIdList, PresentationPart.Presentation.SlideMasterIdList);
         }
 
         slideIdList.Append(new P.SlideId()
