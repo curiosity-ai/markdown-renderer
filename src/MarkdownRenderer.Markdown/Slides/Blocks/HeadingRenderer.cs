@@ -23,12 +23,7 @@ public class HeadingRenderer : LeafBlockParagraphRendererBase<HeadingBlock>
             renderer.CreateNewSlide();
 
             // Create title shape
-            var shape = renderer.CreateShape();
-            shape.NonVisualShapeProperties!.ApplicationNonVisualDrawingProperties!.PlaceholderShape!.Type = DocumentFormat.OpenXml.Presentation.PlaceholderValues.Title;
-
-            // Adjust coordinates and size so title and body placeholders don't overlap completely
-            shape.ShapeProperties!.Transform2D!.Offset!.Y = 274320L;
-            shape.ShapeProperties!.Transform2D!.Extents!.Cy = 1143000L;
+            var shape = renderer.CreateShape(true);
 
             renderer.CurrentShape = shape;
             renderer.CurrentSlidePart.Slide.CommonSlideData!.ShapeTree!.AppendChild(shape);
