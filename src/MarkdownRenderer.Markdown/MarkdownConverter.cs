@@ -118,12 +118,54 @@ public class MarkdownConverter
 
     private void InitializePresentation(PresentationDocument presentationDoc)
     {
+        // Core File Properties
+        presentationDoc.PackageProperties.Creator = "MarkdownRenderer";
+        presentationDoc.PackageProperties.Created = DateTime.UtcNow;
+        presentationDoc.PackageProperties.Modified = DateTime.UtcNow;
+
         PresentationPart presentationPart = presentationDoc.AddPresentationPart();
         presentationPart.Presentation = new Presentation();
 
+        // Add SlideSize
+        presentationPart.Presentation.AppendChild(new SlideSize() { Cx = 9144000, Cy = 6858000, Type = SlideSizeValues.Screen4x3 });
+        presentationPart.Presentation.AppendChild(new NotesSize() { Cx = 6858000, Cy = 9144000 });
+
+        // Add DefaultTextStyle
+        presentationPart.Presentation.AppendChild(new DefaultTextStyle(
+            new D.DefaultParagraphProperties(new D.DefaultRunProperties() { Language = "en-US" }),
+            new D.Level1ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 0, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level2ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 457200, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level3ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 914400, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level4ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 1371600, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level5ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 1828800, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level6ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 2286000, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level7ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 2743200, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level8ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 3200400, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false },
+            new D.Level9ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 } ) { LeftMargin = 3657600, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false }
+        ));
+
         // Create Presentation Properties
         PresentationPropertiesPart presPropsPart = presentationPart.AddNewPart<PresentationPropertiesPart>();
-        presPropsPart.PresentationProperties = new PresentationProperties();
+        presPropsPart.PresentationProperties = new PresentationProperties(
+            new PresentationPropertiesExtensionList(
+                new PresentationPropertiesExtension() { Uri = "{E76CE94A-603C-4142-B9EB-6D1370010A27}" },
+                new PresentationPropertiesExtension() { Uri = "{D31A062A-798A-4329-ABDD-BBA856620510}" },
+                new PresentationPropertiesExtension() { Uri = "{FD5EFAAD-0ECE-453E-9831-46B23BE46B34}" }
+            )
+        );
+
+        // View Properties Part
+        ViewPropertiesPart viewPropsPart = presentationPart.AddNewPart<ViewPropertiesPart>();
+        viewPropsPart.ViewProperties = new ViewProperties(
+            new NormalViewProperties(new RestoredLeft() { Size = 17989, AutoAdjust = false }, new RestoredTop() { Size = 94660 }),
+            new SlideViewProperties(new CommonSlideViewProperties(new CommonViewProperties(new ScaleFactor(new D.ScaleX() { Numerator = 109, Denominator = 100 }, new D.ScaleY() { Numerator = 109, Denominator = 100 }), new Origin() { X = 854L, Y = 48L }), new GuideList()) { SnapToGrid = false }),
+            new NotesTextViewProperties(new CommonViewProperties(new ScaleFactor(new D.ScaleX() { Numerator = 1, Denominator = 1 }, new D.ScaleY() { Numerator = 1, Denominator = 1 }), new Origin() { X = 0L, Y = 0L })),
+            new GridSpacing() { Cx = 72008, Cy = 72008 }
+        );
+
+        // Table Styles Part
+        TableStylesPart tableStylesPart = presentationPart.AddNewPart<TableStylesPart>();
+        tableStylesPart.TableStyleList = new D.TableStyleList() { Default = "{5C22544A-7EE6-4342-B048-85BDC9FD1C3A}" };
 
         // Create Theme
         ThemePart themePart = presentationPart.AddNewPart<ThemePart>();
@@ -160,14 +202,23 @@ public class MarkdownConverter
         // Create Slide Master
         SlideMasterPart slideMasterPart = presentationPart.AddNewPart<SlideMasterPart>();
         slideMasterPart.SlideMaster = new SlideMaster(
-            new CommonSlideData(new ShapeTree(
-                new NonVisualGroupShapeProperties(
-                    new NonVisualDrawingProperties() { Id = 1, Name = "" },
-                    new NonVisualGroupShapeDrawingProperties(),
-                    new ApplicationNonVisualDrawingProperties()),
-                new GroupShapeProperties(new D.TransformGroup()))),
+            new CommonSlideData(
+                new Background(new BackgroundStyleReference(new D.SchemeColor() { Val = D.SchemeColorValues.Light1 }) { Index = 1001 }),
+                new ShapeTree(
+                    new NonVisualGroupShapeProperties(
+                        new NonVisualDrawingProperties() { Id = 1, Name = "" },
+                        new NonVisualGroupShapeDrawingProperties(),
+                        new ApplicationNonVisualDrawingProperties()),
+                    new GroupShapeProperties(new D.TransformGroup())
+                )
+            ),
             new ColorMap() { Background1 = D.ColorSchemeIndexValues.Light1, Text1 = D.ColorSchemeIndexValues.Dark1, Background2 = D.ColorSchemeIndexValues.Light2, Text2 = D.ColorSchemeIndexValues.Dark2, Accent1 = D.ColorSchemeIndexValues.Accent1, Accent2 = D.ColorSchemeIndexValues.Accent2, Accent3 = D.ColorSchemeIndexValues.Accent3, Accent4 = D.ColorSchemeIndexValues.Accent4, Accent5 = D.ColorSchemeIndexValues.Accent5, Accent6 = D.ColorSchemeIndexValues.Accent6, Hyperlink = D.ColorSchemeIndexValues.Hyperlink, FollowedHyperlink = D.ColorSchemeIndexValues.FollowedHyperlink },
-            new SlideLayoutIdList()
+            new SlideLayoutIdList(),
+            new TextStyles(
+                new TitleStyle(new D.Level1ParagraphProperties(new D.DefaultRunProperties() { FontSize = 4400, Kerning = 1200 }) { Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false }),
+                new BodyStyle(new D.Level1ParagraphProperties(new D.DefaultRunProperties() { FontSize = 2800, Kerning = 1200 }) { LeftMargin = 228600, Indent = -228600, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false }),
+                new OtherStyle(new D.Level1ParagraphProperties(new D.DefaultRunProperties() { FontSize = 1800, Kerning = 1200 }) { LeftMargin = 0, Alignment = D.TextAlignmentTypeValues.Left, DefaultTabSize = 914400, RightToLeft = false, EastAsianLineBreak = true, LatinLineBreak = false })
+            )
         );
 
         // Add Theme to Slide Master
@@ -176,16 +227,62 @@ public class MarkdownConverter
         // Create Slide Layout
         SlideLayoutPart slideLayoutPart = slideMasterPart.AddNewPart<SlideLayoutPart>();
         slideLayoutPart.SlideLayout = new SlideLayout(
-            new CommonSlideData(new ShapeTree(
-                new NonVisualGroupShapeProperties(
-                    new NonVisualDrawingProperties() { Id = 1, Name = "" },
-                    new NonVisualGroupShapeDrawingProperties(),
-                    new ApplicationNonVisualDrawingProperties()),
-                new GroupShapeProperties(new D.TransformGroup())))
-        );
+            new CommonSlideData(
+                new ShapeTree(
+                    new NonVisualGroupShapeProperties(
+                        new NonVisualDrawingProperties() { Id = 1, Name = "" },
+                        new NonVisualGroupShapeDrawingProperties(),
+                        new ApplicationNonVisualDrawingProperties()),
+                    new GroupShapeProperties(new D.TransformGroup()),
+                    new Shape(
+                        new NonVisualShapeProperties(
+                            new NonVisualDrawingProperties() { Id = 2, Name = "Title 1" },
+                            new NonVisualShapeDrawingProperties(new D.ShapeLocks() { NoGrouping = true }),
+                            new ApplicationNonVisualDrawingProperties(new PlaceholderShape() { Type = PlaceholderValues.Title })
+                        ),
+                        new ShapeProperties(
+                            new D.Transform2D(new D.Offset() { X = 628650, Y = 365125 }, new D.Extents() { Cx = 7886700, Cy = 1325563 }),
+                            new D.PresetGeometry(new D.AdjustValueList()) { Preset = D.ShapeTypeValues.Rectangle }
+                        ),
+                        new TextBody(new D.BodyProperties(), new D.ListStyle(), new D.Paragraph(new D.Run(new D.Text("Click to edit Master title style"))))
+                    ),
+                    new Shape(
+                        new NonVisualShapeProperties(
+                            new NonVisualDrawingProperties() { Id = 3, Name = "Text Placeholder 2" },
+                            new NonVisualShapeDrawingProperties(new D.ShapeLocks() { NoGrouping = true }),
+                            new ApplicationNonVisualDrawingProperties(new PlaceholderShape() { Type = PlaceholderValues.Body, Index = 1 })
+                        ),
+                        new ShapeProperties(
+                            new D.Transform2D(new D.Offset() { X = 628650, Y = 1825625 }, new D.Extents() { Cx = 7886700, Cy = 4351338 }),
+                            new D.PresetGeometry(new D.AdjustValueList()) { Preset = D.ShapeTypeValues.Rectangle }
+                        ),
+                        new TextBody(new D.BodyProperties(), new D.ListStyle(), new D.Paragraph(new D.ParagraphProperties() { Level = 0 }, new D.Run(new D.Text("Click to edit Master text styles"))))
+                    )
+                )
+            ),
+            new ColorMapOverride(new D.MasterColorMapping())
+        ) { Type = SlideLayoutValues.Text };
 
         // Link Slide Layout back to Slide Master
         slideMasterPart.SlideMaster.SlideLayoutIdList!.AppendChild(new SlideLayoutId() { Id = 2147483649, RelationshipId = slideMasterPart.GetIdOfPart(slideLayoutPart) });
+
+        // Add Blank Layout
+        SlideLayoutPart blankLayoutPart = slideMasterPart.AddNewPart<SlideLayoutPart>();
+        blankLayoutPart.SlideLayout = new SlideLayout(
+            new CommonSlideData(
+                new ShapeTree(
+                    new NonVisualGroupShapeProperties(
+                        new NonVisualDrawingProperties() { Id = 1, Name = "" },
+                        new NonVisualGroupShapeDrawingProperties(),
+                        new ApplicationNonVisualDrawingProperties()),
+                    new GroupShapeProperties(new D.TransformGroup())
+                )
+            ),
+            new ColorMapOverride(new D.MasterColorMapping())
+        ) { Type = SlideLayoutValues.Blank };
+
+        // Link Blank Layout to Slide Master
+        slideMasterPart.SlideMaster.SlideLayoutIdList!.AppendChild(new SlideLayoutId() { Id = 2147483650, RelationshipId = slideMasterPart.GetIdOfPart(blankLayoutPart) });
 
         // Link Slide Master to Presentation
         presentationPart.Presentation.AppendChild(new SlideMasterIdList(new SlideMasterId() { Id = 2147483648, RelationshipId = presentationPart.GetIdOfPart(slideMasterPart) }));

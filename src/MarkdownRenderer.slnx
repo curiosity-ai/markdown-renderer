@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/MarkdownRenderer.Tools/">
+    <Project Path="MarkdownRenderer.Tools/MarkdownRenderer.Tools/MarkdownRenderer.Tools.csproj" />
+  </Folder>
   <Folder Name="/samples/">
     <Project Path="../samples/MarkdownRenderer.Sample/MarkdownRenderer.Sample.csproj" />
   </Folder>

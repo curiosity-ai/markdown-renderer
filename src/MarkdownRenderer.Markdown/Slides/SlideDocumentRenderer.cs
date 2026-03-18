@@ -112,22 +112,40 @@ public class SlideDocumentRenderer : RendererBase
         CurrentParagraph = null!;
     }
 
-    public P.Shape CreateShape()
+    public P.Shape CreateShape(bool isTitle = false)
     {
         var shape = new P.Shape();
 
-        shape.NonVisualShapeProperties = new P.NonVisualShapeProperties(
-            new P.NonVisualDrawingProperties() { Id = _shapeIdCounter++, Name = "Content Placeholder" },
-            new P.NonVisualShapeDrawingProperties(new D.ShapeLocks() { NoGrouping = true }),
-            new P.ApplicationNonVisualDrawingProperties(new P.PlaceholderShape() { Type = P.PlaceholderValues.Body })
-        );
+        if (isTitle)
+        {
+            shape.NonVisualShapeProperties = new P.NonVisualShapeProperties(
+                new P.NonVisualDrawingProperties() { Id = _shapeIdCounter++, Name = "Title" },
+                new P.NonVisualShapeDrawingProperties(new D.ShapeLocks() { NoGrouping = true }),
+                new P.ApplicationNonVisualDrawingProperties(new P.PlaceholderShape() { Type = P.PlaceholderValues.Title })
+            );
 
-        shape.ShapeProperties = new P.ShapeProperties(
-            new D.Transform2D(
-                new D.Offset() { X = 457200L, Y = 1600200L },
-                new D.Extents() { Cx = 8229600L, Cy = 4525963L }),
-            new D.PresetGeometry(new D.AdjustValueList()) { Preset = D.ShapeTypeValues.Rectangle }
-        );
+            shape.ShapeProperties = new P.ShapeProperties(
+                new D.Transform2D(
+                    new D.Offset() { X = 457200L, Y = 274320L },
+                    new D.Extents() { Cx = 8229600L, Cy = 1143000L }),
+                new D.PresetGeometry(new D.AdjustValueList()) { Preset = D.ShapeTypeValues.Rectangle }
+            );
+        }
+        else
+        {
+            shape.NonVisualShapeProperties = new P.NonVisualShapeProperties(
+                new P.NonVisualDrawingProperties() { Id = _shapeIdCounter++, Name = "Content Placeholder" },
+                new P.NonVisualShapeDrawingProperties(new D.ShapeLocks() { NoGrouping = true }),
+                new P.ApplicationNonVisualDrawingProperties(new P.PlaceholderShape() { Type = P.PlaceholderValues.Body, Index = 1 })
+            );
+
+            shape.ShapeProperties = new P.ShapeProperties(
+                new D.Transform2D(
+                    new D.Offset() { X = 457200L, Y = 1600200L },
+                    new D.Extents() { Cx = 8229600L, Cy = 4525963L }),
+                new D.PresetGeometry(new D.AdjustValueList()) { Preset = D.ShapeTypeValues.Rectangle }
+            );
+        }
 
         shape.TextBody = new P.TextBody(
             new D.BodyProperties(),
