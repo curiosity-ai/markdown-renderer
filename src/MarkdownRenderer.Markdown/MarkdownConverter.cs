@@ -79,18 +79,24 @@ public class MarkdownConverter
     /// <param name="outputFilePath">The output file path.</param>
     public void ToSlides(MarkdownSource markdown, string outputFilePath)
     {
-        using (var document = PresentationDocument.Create(outputFilePath, PresentationDocumentType.Presentation))
+        using (var ms = new MemoryStream())
         {
-            InitializePresentation(document);
-            var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
+            using (var document = PresentationDocument.Create(ms, PresentationDocumentType.Presentation))
             {
-                ImagesBaseUri = this.ImagesBaseUri,
-                LinksBaseUri = this.LinksBaseUri,
-                SkipImages = this.SkipImages,
-                EnableExternalResources = this.EnableExternalResources
-            };
-            renderer.Render(markdown.Document);
-            document.Save();
+                InitializePresentation(document);
+                var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
+                {
+                    ImagesBaseUri = this.ImagesBaseUri,
+                    LinksBaseUri = this.LinksBaseUri,
+                    SkipImages = this.SkipImages,
+                    EnableExternalResources = this.EnableExternalResources
+                };
+                renderer.Render(markdown.Document);
+                document.Save();
+            }
+
+            var fixedBytes = FixPresentationPackage(ms.ToArray());
+            File.WriteAllBytes(outputFilePath, fixedBytes);
         }
     }
 
@@ -101,18 +107,104 @@ public class MarkdownConverter
     /// <param name="outputStream">The output stream.</param>
     public void ToSlides(MarkdownSource markdown, Stream outputStream)
     {
-        using (var document = PresentationDocument.Create(outputStream, PresentationDocumentType.Presentation))
+        using (var ms = new MemoryStream())
         {
-            InitializePresentation(document);
-            var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
+            using (var document = PresentationDocument.Create(ms, PresentationDocumentType.Presentation))
             {
-                ImagesBaseUri = this.ImagesBaseUri,
-                LinksBaseUri = this.LinksBaseUri,
-                SkipImages = this.SkipImages,
-                EnableExternalResources = this.EnableExternalResources
-            };
-            renderer.Render(markdown.Document);
-            document.Save();
+                InitializePresentation(document);
+                var renderer = new Markdig.Renderers.Slides.SlideDocumentRenderer(document)
+                {
+                    ImagesBaseUri = this.ImagesBaseUri,
+                    LinksBaseUri = this.LinksBaseUri,
+                    SkipImages = this.SkipImages,
+                    EnableExternalResources = this.EnableExternalResources
+                };
+                renderer.Render(markdown.Document);
+                document.Save();
+            }
+
+            var fixedBytes = FixPresentationPackage(ms.ToArray());
+            outputStream.Write(fixedBytes, 0, fixedBytes.Length);
+        }
+    }
+
+    private byte[] FixPresentationPackage(byte[] packageBytes)
+    {
+        using (var inStream = new MemoryStream(packageBytes))
+        using (var outStream = new MemoryStream())
+        {
+            using (var inArchive = new System.IO.Compression.ZipArchive(inStream, System.IO.Compression.ZipArchiveMode.Read))
+            using (var outArchive = new System.IO.Compression.ZipArchive(outStream, System.IO.Compression.ZipArchiveMode.Create, true))
+            {
+                foreach (var entry in inArchive.Entries)
+                {
+                    var newEntry = outArchive.CreateEntry(entry.FullName);
+                    using (var entryStream = entry.Open())
+                    using (var newEntryStream = newEntry.Open())
+                    {
+                        if (entry.FullName == "[Content_Types].xml")
+                        {
+                            var doc = new System.Xml.XmlDocument();
+                            doc.Load(entryStream);
+                            var namespaceManager = new System.Xml.XmlNamespaceManager(doc.NameTable);
+                            namespaceManager.AddNamespace("ct", "http://schemas.openxmlformats.org/package/2006/content-types");
+
+                            var defaultXmlNode = doc.SelectSingleNode("//ct:Default[@Extension='xml']", namespaceManager) as System.Xml.XmlElement;
+                            if (defaultXmlNode != null && defaultXmlNode.GetAttribute("ContentType") == "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml")
+                            {
+                                defaultXmlNode.SetAttribute("ContentType", "application/xml");
+
+                                var overrideNode = doc.CreateElement("Override", "http://schemas.openxmlformats.org/package/2006/content-types");
+                                overrideNode.SetAttribute("PartName", "/ppt/presentation.xml");
+                                overrideNode.SetAttribute("ContentType", "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml");
+                                doc.DocumentElement?.AppendChild(overrideNode);
+                            }
+                            doc.Save(newEntryStream);
+                        }
+                        else if (entry.FullName.EndsWith(".rels"))
+                        {
+                            var doc = new System.Xml.XmlDocument();
+                            doc.Load(entryStream);
+                            if (doc.DocumentElement != null)
+                            {
+                                foreach (System.Xml.XmlElement rel in doc.DocumentElement.ChildNodes.OfType<System.Xml.XmlElement>())
+                                {
+                                    if (rel.HasAttribute("TargetMode") && rel.GetAttribute("TargetMode") == "External") continue;
+                                    var target = rel.GetAttribute("Target");
+                                    if (target.StartsWith("/"))
+                                    {
+                                        if (entry.FullName == "_rels/.rels")
+                                        {
+                                            rel.SetAttribute("Target", target.Substring(1));
+                                        }
+                                        else
+                                        {
+                                            // Find the associated part name for the rels file
+                                            // E.g., ppt/slides/_rels/slide1.xml.rels -> ppt/slides/slide1.xml
+                                            var dirName = Path.GetDirectoryName(entry.FullName);
+                                            var parentDir = Path.GetDirectoryName(dirName);
+                                            var fileName = Path.GetFileNameWithoutExtension(entry.FullName);
+                                            var partName = (parentDir != null && parentDir.Length > 0 ? parentDir + "/" : "") + fileName;
+                                            partName = partName.Replace('\\', '/');
+
+                                            var baseUri = new Uri("http://localhost/" + partName);
+                                            var targetUri = new Uri("http://localhost" + target);
+                                            var relUri = baseUri.MakeRelativeUri(targetUri).ToString();
+                                            rel.SetAttribute("Target", relUri);
+                                        }
+                                    }
+                                }
+                            }
+                            doc.Save(newEntryStream);
+                        }
+                        else
+                        {
+                            entryStream.CopyTo(newEntryStream);
+                        }
+                    }
+                }
+            }
+            return outStream.ToArray();
         }
     }
 
