@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+#pragma warning disable OOXML0001
+using DocumentFormat.OpenXml.Experimental;
 using System.Text;
 using DocumentFormat.OpenXml.Packaging;
 
@@ -374,7 +376,7 @@ namespace OpenXmlPowerTools
         {
             XElement newRegular;
             FontPart oldFontPart = (FontPart)sourceDocument.PresentationPart.GetPartById((string)font.Element(fontXName).Attributes(R.id).FirstOrDefault());
-            FontPartType fpt;
+            PartTypeInfo fpt;
             if (oldFontPart.ContentType == "application/x-fontdata")
                 fpt = FontPartType.FontData;
             else if (oldFontPart.ContentType == "application/x-font-ttf")
@@ -1076,13 +1078,13 @@ namespace OpenXmlPowerTools
                         // following is a hack to fix the package because the Open XML SDK does not let us create
                         // a relationship from a chart with the oleObject relationship type.
 
-                        var pkg = newChart.OpenXmlPackage.Package;
+                        var pkg = newChart.OpenXmlPackage.GetPackage();
                         var fromPart = pkg.GetParts().FirstOrDefault(p => p.Uri == newChart.Uri);
-                        var rel = fromPart.GetRelationships().FirstOrDefault(p => p.Id == rId);
+                        var rel = fromPart.Relationships.FirstOrDefault(p => p.Id == rId);
                         var targetUri = rel.TargetUri;
 
-                        fromPart.DeleteRelationship(rId);
-                        fromPart.CreateRelationship(targetUri, System.IO.Packaging.TargetMode.Internal,
+                        fromPart.Relationships.Remove(rId);
+                        fromPart.Relationships.Create(targetUri, System.IO.Packaging.TargetMode.Internal,
                             "http://schemas.openxmlformats.org/officeDocument/2006/relationships/oleObject", rId);
 
                         continue;
@@ -1321,8 +1323,8 @@ namespace OpenXmlPowerTools
                 }
                 else
                 {
-                    var fromPart = newContentPart.OpenXmlPackage.Package.GetParts().FirstOrDefault(p => p.Uri == newContentPart.Uri);
-                    fromPart.CreateRelationship(new Uri("NULL", UriKind.RelativeOrAbsolute), System.IO.Packaging.TargetMode.Internal, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", relId);
+                    var fromPart = newContentPart.OpenXmlPackage.GetPackage().GetParts().FirstOrDefault(p => p.Uri == newContentPart.Uri);
+                    fromPart.Relationships.Create(new Uri("NULL", UriKind.RelativeOrAbsolute), System.IO.Packaging.TargetMode.Internal, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", relId);
                 }
             }
         }
@@ -1727,8 +1729,8 @@ namespace OpenXmlPowerTools
                 }
                 catch (KeyNotFoundException)
                 {
-                    var fromPart = newContentPart.OpenXmlPackage.Package.GetParts().FirstOrDefault(p => p.Uri == newContentPart.Uri);
-                    fromPart.CreateRelationship(new Uri("NULL", UriKind.RelativeOrAbsolute), System.IO.Packaging.TargetMode.Internal, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", relId);
+                    var fromPart = newContentPart.OpenXmlPackage.GetPackage().GetParts().FirstOrDefault(p => p.Uri == newContentPart.Uri);
+                    fromPart.Relationships.Create(new Uri("NULL", UriKind.RelativeOrAbsolute), System.IO.Packaging.TargetMode.Internal, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", relId);
                 }
             }
         }
