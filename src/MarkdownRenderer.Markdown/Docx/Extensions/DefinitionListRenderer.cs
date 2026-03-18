@@ -21,7 +21,7 @@ public class DefinitionTermRenderer : LeafBlockParagraphRendererBase<DefinitionT
 {
     protected override void WriteObject(DocxDocumentRenderer renderer, DefinitionTerm obj)
     {
-        WriteAsParagraph(renderer, obj, "DefinitionTerm");
+        WriteAsParagraph(renderer, obj, renderer.Styles.MarkdownStyles["DefinitionTerm"]);
     }
 }
 
@@ -29,6 +29,6 @@ public class DefinitionItemRenderer : ContainerBlockParagraphRendererBase<Defini
 {
     protected override void WriteObject(DocxDocumentRenderer renderer, DefinitionItem obj)
     {
-        WriteAsParagraph(renderer, obj, "DefinitionItem");
+        WriteAsParagraph(renderer, obj, renderer.Styles.MarkdownStyles["DefinitionItem"]);
     }
 }

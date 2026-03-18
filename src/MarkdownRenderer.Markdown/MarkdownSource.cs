@@ -64,6 +64,9 @@ public class MarkdownSource
                                                                         .UseAdvancedExtensions()
                                                                         .UseYamlFrontMatter()
                                                                         .UseEmojiAndSmiley()
+                                                                        .UseDiagrams()
+                                                                        .UseMathematics()
+                                                                        .UseCustomContainers()
                                                                         .Build();
 
     /// <summary>

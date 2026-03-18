@@ -11,6 +11,6 @@ public class MathInlineRenderer : DocxObjectRenderer<MathInline>
 {
     protected override void WriteObject(DocxDocumentRenderer renderer, MathInline obj)
     {
-
+        WriteText(renderer, obj.Content.ToString(), renderer.Styles.MarkdownStyles["CodeInline"]);
     }
 }
