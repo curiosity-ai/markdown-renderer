@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -7,24 +7,28 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-  <!-- NuGet package -->
   <PropertyGroup>
-    <AssemblyName>MarkdownRenderer.Markdown</AssemblyName>
-    <AssemblyTitle>MarkdownRenderer.Markdown</AssemblyTitle>
-    <PackageId>MarkdownRenderer.Markdown</PackageId>
-    <Title>MarkdownRenderer.Markdown</Title>
-    <Description>.NET library for converting documents. The MarkdownRenderer.Markdown package provides Markdown to DOCX and RTF conversion.</Description>
-    <PackageTags>markdown docx rtf convert converter markdig renderer openxml office word MarkdownRenderer md</PackageTags>
+    <AssemblyName>MarkdownRenderer</AssemblyName>
+    <AssemblyTitle>MarkdownRenderer</AssemblyTitle>
+    <PackageId>MarkdownRenderer</PackageId>
+    <Title>Markdown Renderer</Title>
+    <Product>MarkdownRenderer</Product>
+    <Description>.NET library for converting markdown to Office documents. The MarkdownRenderer package provides Markdown to DOCX and PPTX conversion.</Description>
+    <PackageTags>markdown docx pptx convert converter markdig renderer openxml office word markdown-renderer md</PackageTags>
 
-    <!-- Required NuGet properties -->
-    <Authors>AuthorPlaceholder</Authors>
-    <Company>CompanyPlaceholder</Company>
-    <Product>ProductPlaceholder</Product>
-    <Version>1.0.0</Version>
+    <Authors>Curiosity GmbH</Authors>
+    <Product>MarkdownRenderer</Product>
+    <Company>Curiosity GmbH</Company>
+    <Version>0.0.42</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/placeholder/MarkdownRenderer</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/placeholder/MarkdownRenderer.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/curiosity-ai/markdown-renderer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/curiosity-ai/markdown-renderer.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>(c) Copyright 2026 Curiosity GmbH, Copyright (c) 2024 Manfredi Marceca, Copyright (c) Microsoft Corporation</Copyright>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
     <!-- For including project references -->
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
@@ -48,14 +52,13 @@
   <ItemGroup>
     <ProjectReference Include="..\MarkdownRenderer.Docx\MarkdownRenderer.Docx.csproj" PrivateAssets="All" />
     <ProjectReference Include="..\MarkdownRenderer.Slides\MarkdownRenderer.Slides.csproj" PrivateAssets="All" />
-    <!-- Since Docx references Common, we also need to pack Common -->
     <ProjectReference Include="..\MarkdownRenderer.Common\MarkdownRenderer.Common.csproj" PrivateAssets="All" />
   </ItemGroup>
 
   <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
     <ItemGroup>
       <!-- Filter out unnecessary files -->
-      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
     </ItemGroup>
   </Target>
 </Project>
