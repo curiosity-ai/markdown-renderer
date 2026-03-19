@@ -1,6 +1,6 @@
 # MarkdownRenderer
 
-MarkdownRenderer is a pure C# library to convert between document formats without Office interop or native dependencies (except for some special packages, see [requirements](#requirements)).
+MarkdownRenderer is a renderer for markdown, using the Markdig and OpenXML projects.
 
 The following packages are currently available:
 
