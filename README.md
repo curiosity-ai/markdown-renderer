@@ -2,125 +2,133 @@
 
 MarkdownRenderer is a renderer for markdown, using the [docsharp](https://github.com/manfromarce/DocSharp) and [Open-XML-SDK](https://github.com/dotnet/Open-XML-SDK) projects.
 
-The following packages are currently available:
-
-- MarkdownRenderer.Binary: convert Office 97-2003 binary documents (doc, xls, ppt) to OpenXML documents (docx, xlsx, pptx). This is a fork of the abandoned [b2xtranslator project](https://github.com/EvolutionJobs/b2xtranslator) which provides critical fixes.  
-Note: pre-97 formats (not documented) and XLSB (very different) are not supported.
-- MarkdownRenderer.Docx: convert DOCX to RTF, HTML, Markdown and plain text (.txt). Possible applications include generating Open XML documents in C# and exporting for other editors/services, or loading Microsoft Word documents in a RichTextBox / RichEditBox control.
-- MarkdownRenderer.Markdown: convert Markdown to DOCX or RTF using custom Markdig renderers.
+## Installation
 
 Packages can be installed via NuGet:  
-[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Binary.Doc?style=flat-square&label=MarkdownRenderer.Binary.Doc)](https://www.nuget.org/packages/MarkdownRenderer.Binary.Doc/) 
-[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Binary.Xls?style=flat-square&label=MarkdownRenderer.Binary.Xls)](https://www.nuget.org/packages/MarkdownRenderer.Binary.Xls/)
-[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Binary.Ppt?style=flat-square&label=MarkdownRenderer.Binary.Ppt)](https://www.nuget.org/packages/MarkdownRenderer.Binary.Ppt/)
-[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Docx?style=flat-square&label=MarkdownRenderer.Docx)](https://www.nuget.org/packages/MarkdownRenderer.Docx/)
 [![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Markdown?style=flat-square&label=MarkdownRenderer.Markdown)](https://www.nuget.org/packages/MarkdownRenderer.Markdown/)
 
-The optional extra packages [MarkdownRenderer.ImageSharp](https://www.nuget.org/packages/MarkdownRenderer.ImageSharp/), [MarkdownRenderer.SystemDrawing](https://www.nuget.org/packages/MarkdownRenderer.SystemDrawing/), MarkdownRenderer.MagickNET (not published yet) allow to convert unsupported images (e.g. GIF / TIFF for DOCX -> RTF or WMF / EMF / TIFF for DOCX -> Markdown/HTML). Each of these has pros and cons, the choice depends on your requirements. More information can be found in the [Wiki](https://github.com/manfromarce/MarkdownRenderer/wiki/Convert-images).
+## Features
 
-The codebase also contains few experimental converters that are not ready and not published on NuGet yet:  
-- RTF to DOCX converter class in the MarkdownRenderer.Docx project
-- MarkdownRenderer.Renderer: provides DOCX to PDF/images/SVG/XPS conversion using [QuestPDF](https://github.com/QuestPDF/QuestPDF).  
+The library allows converting Markdown into Microsoft Word (`.docx`) and PowerPoint (`.pptx`) formats. It supports various markdown elements:
+- Headings and Paragraphs
+- Text formatting (Bold, Italic)
+- Lists (Ordered and Unordered)
+- Code Blocks and Inline Code
+- Blockquotes
+- Tables
+- Mathematics (Inline and Block equations)
+- Mermaid Diagrams
+- Custom Containers
+- Emojis and Smilies
+- Footnotes
 
-There is no common DOM to manipulate or generate documents, this library is mainly for conversion. Some helper methods on top of the [Open XML SDK](https://github.com/dotnet/Open-XML-SDK) and format-specific writers are available, but they are mostly intended for internal use; however they could be extended/improved in the future.  
-You can consider using the Open XML SDK itself or other <a href="#recommended_libraries">recommended libraries</a> for documents creation and manipulation. Some of these are used in the sample app to test two-steps conversions, compare results, or generate documents in multiple formats with the same code.  
-MarkdownRenderer provides methods to accept/return a WordprocessingDocument directly (in addition to file path / Stream / byte array), and a SaveTo extension method for WordprocessingDocument.
+## Usage
 
-### Supported features
+Below is a complete example of generating a DOCX and a PPTX document from Markdown strings:
 
-- Binary formats: most doc/xls/ppt features were supported by the original project, but exceptions occurred when using .NET (rather than .NET Framework) or loading specific documents. The most noticeable issues have been fixed, but more work is needed to make the library reliable; if you find other bugs, you are welcome to open an issue (please attach a sample file if the issue only occurs for specific documents).
-- DOCX, RTF, Markdown: supported elements vary depending on input and output formats, see [Supported features](https://github.com/manfromarce/MarkdownRenderer/blob/main/documentation/Supported_features.MD) for an overview.
+```csharp
+using System;
+using DocumentFormat.OpenXml.Presentation;
+using MarkdownRenderer.Markdown;
 
-<a id="Requirements"></a>
+namespace MarkdownRenderer.Sample
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Generating Sample Documents from Markdown...");
 
-### Requirements
+            string docxMarkdown = @"# Advanced Features for Word Document
 
-- Supported targets are .NET 8, 9, 10 and .NET Framework 4.6.2 (minimum netfx version still supported).  
-- MarkdownRenderer.SystemDrawing is for Windows only (.NET Framework or net*-windows), as System.Drawing.Common is based on GDI+ and only supported on Windows since .NET 6.
-- MarkdownRenderer.ImageSharp is cross-platform for .NET 8+, as ImageSharp is fully managed C# code but does not support .NET Framework.
-- MarkdownRenderer.MagickNET is cross-platform for both .NET and .NET Framework, but Magick.NET bundles many native libraries that might not work on non-desktop platforms (Android / iOS / WASM)
-- MarkdownRenderer.Renderer depends on QuestPDF, which currently supports Windows x64 / x86, macOS x64 / ARM64, Linux x64 / ARM64. Windows ARM64, Android, iOS are not supported yet, due to a custom Skia build. Plus, the XPS generation is only supported on Windows. 
+## Tables
 
-### Usage
+| Header 1 | Header 2 |
+| -------- | -------- |
+| Cell 1   | Cell 2   |
 
-You can refer to the project [Wiki](https://github.com/manfromarce/MarkdownRenderer/wiki) or [sample apps](https://github.com/manfromarce/MarkdownRenderer/tree/main/samples/).
+## Mathematics
 
-### Roadmap
+An inline equation $E=mc^2$ and a block equation:
 
-- Finish and publish experimental converters
-- Support more elements and attributes, and fix issues on edge cases
-- Reduce code duplication, cleanup
-- Async functions/progress callback (some tasks such as downloading images referenced in Markdown may take some time)
-- Improve support for right-to-left and complex script languages
-- Evaluate feasibility of making converters thread-safe and totally NativeAOT-compatible
+$$
+a^2 + b^2 = c^2
+$$
 
-### Credits
+## Custom Containers
 
-Dependencies: 
-- [Open XML SDK](https://github.com/dotnet/Open-XML-SDK)
-- [Markdig](https://github.com/xoofx/markdig) - for MarkdownRenderer.Markdown
-- [ImageSharp](https://github.com/SixLabors/ImageSharp) and [VectSharp](https://github.com/arklumpus/VectSharp) - for MarkdownRenderer.ImageSharp
-- System.Drawing.Common and [SVG.NET](https://github.com/svg-net/SVG) - for MarkdownRenderer.SystemDrawing
-- [CoreJ2K](https://github.com/cinderblocks/CoreJ2K) - for JPEG2000 support in both MarkdownRenderer.ImageSharp and MarkdownRenderer.System.Drawing
-- [Magick.NET-Q8-AnyCPU](https://github.com/dlemstra/Magick.NET) - for MarkdownRenderer.MagickNET
-- [QuestPDF](https://github.com/QuestPDF/QuestPDF) - for MarkdownRenderer.Renderer
+:::callout
+This is a custom container (callout), which translates to a blockquote style in Word.
+:::
 
-Forked: 
-- [b2xtranslator](https://github.com/EvolutionJobs/b2xtranslator)
-- [markdig.docx](https://github.com/morincer/markdig.docx)
+## Emoji and Smilies
 
-Others (credits for parts of the logic, not direct dependencies):
-- [wmf-to-svg](https://github.com/kemsky/wmf-to-svg) for the WMF parser
-- [Html2OpenXml](https://github.com/onizet/html2openxml) for images header decoding and unit conversions.  
-- [dwml_cs](https://github.com/m-x-d/dwml_cs) for Office Math (OMML) to LaTex conversion  
-- [addFormula2docx](https://github.com/Sun-ZhenXing/addFormula2docx) for Office Math (OMML) to MathML conversion  
-- [RtfPipe](https://github.com/erdomke/RtfPipe) (and forks: [1](https://github.com/jasonwmeeks/RtfPipe), [2](https://github.com/cezarypiatek/FridaysForks.RtfPipe)), [RtfConverter](https://github.com/jokecamp/RtfConverter), [OpenRTFDoc](https://github.com/ChunbleBee/OpenRTFDoc), [ReasonableRTF.Standard](https://github.com/Flamifly/ReasonableRTF.Standard) for RTF parsing logic.  
-- [ExcelNumberFormat](https://github.com/andersnm/ExcelNumberFormat) for Excel format strings parsing logic.
+Hello world! :smile: :rocket:
 
-<a id="recommended_libraries"></a>
-Other recommended libraries (some of these are used in the sample app, *not* dependencies when installing packages):  
-- Read, write, manipulate docuents: 
-    + [Open XML SDK](https://github.com/dotnet/Open-XML-SDK) - DOCX, XLSX, PPTX
-    + [OfficeIMO](https://github.com/EvotecIT/OfficeIMO) - DOCX, XLSX, PPTX, Markdown, CSV; can also merge, compare and convert some formats
-    + [Clippit](https://github.com/sergey-tihon/Clippit) - DOCX, XLSX, PPTX; can also merge, compare and convert some formats
-    + [ClosedXML](https://github.com/ClosedXML/ClosedXML) - XLSX
-    + [Sylvan.Data.Excel](https://github.com/MarkPflug/Sylvan.Data.Excel) - XLSX, XLS, XLSB
-    + [ShapeCrawler](https://github.com/ShapeCrawler/ShapeCrawler) - PPTX; can also render slides to images
-    + [NPOI](https://github.com/nissl-lab/npoi) - DOCX, XLSX, XLS; partial port of Apache POI
-    + [FluentNPOI](https://github.com/HouseAlwaysWin/FluentNPOI) - XLSX, XLS; HTML/PDF export
-- Read only / Extract data: 
-    + [GustavoHennig/b2xtranslator](https://github.com/GustavoHennig/b2xtranslator) - DOC prior to Office 97
-    + [ExcelDataReader](https://github.com/ExcelDataReader/ExcelDataReader) - XLS (pre-97 too), XLSB, XLSX, CSV
-    + [PdfPig](https://github.com/UglyToad/PdfPig), [Tabula.Csv](https://github.com/BobLd/tabula-sharp) - PDF
-    + [OpenMcdf](https://github.com/ironfede/openmcdf) - Microsoft Compound format
-- Generate documents: 
-    + PDF, XPS, SVG, images: [QuestPDF](https://github.com/QuestPDF/QuestPDF), [FossPDF.NET](https://github.com/FossPDF/FossPDF.Net)
-    + PDF and RTF: [PdfSharp / MigraDoc](https://github.com/empira/PDFsharp)
-    + DOCX: [SharpDocx](https://github.com/egonl/SharpDocx), [DocxTemplater](https://github.com/Amberg/DocxTemplater), [MiniWord](https://github.com/mini-software/MiniWord)
-    + XLSX: [MiniExcel](https://github.com/mini-software/MiniExcel), [ClosedXML.Report](https://github.com/ClosedXML/ClosedXML.Report)
-    + XLSX, ODS, CSV: [FreeDataExports](https://github.com/ryankueter/FreeDataExports)
-- Convert or render documents: 
-    + XLSX: [XlsxToHtmlConverter](https://github.com/Fei-Sheng-Wu/XlsxToHtmlConverter)  
-    + HTML rendering: [HTML-Renderer](https://github.com/ArthurHub/HTML-Renderer), [PeachPdf](https://github.com/jhaygood86/PeachPDF), [Puppeteer Sharp](https://github.com/hardkoded/puppeteer-sharp), [Westwind.WebView](https://github.com/RickStrahl/Westwind.WebView)
-    + HTML to Open XML: [Html2OpenXml](https://github.com/onizet/html2openxml) (DOCX), [HtmlToExcel](https://github.com/StrutTower/HtmlToExcel)
-    + HTML to Markdown: [ReverseMarkdown](https://github.com/mysticmind/reversemarkdown-net)
-    + Markdown rendering: [Markdig](https://github.com/xoofx/markdig), [QuestPDF.Markdown](https://github.com/christiaanderidder/QuestPDF.Markdown), [VectSharp.Markdown + VectSharp.PDF](https://github.com/arklumpus/VectSharp), [MarkdownToPdf](https://github.com/geertjanthomas/MarkdownToPdf)
-    + AsciiDoc rendering: [NAsciidoc](https://github.com/rmannibucau/NAsciidoc), [AsciiMarkdownRenderer](https://github.com/AsciiMarkdownRenderer/AsciiMarkdownRenderer)
-    + PDF rendering: [PDFtoImage](https://github.com/sungaila/PDFtoImage), [PdfPig.Rendering.Skia](https://github.com/BobLd/PdfPig.Rendering.Skia), [Melville.Pdf](https://github.com/DrJohnMelville/Pdf), [PdfToSvg.NET](https://github.com/dmester/pdftosvg.net)
+## Footnotes
 
-### License
+Here is a statement with a footnote.[^1]
 
-MarkdownRenderer is licensed under MIT license and can be used for both open source and commercial projects.  
+[^1]: This is the text of the footnote.
 
-MarkdownRenderer.ImageSharp and MarkdownRenderer.MagickNET are licensed under [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.txt).  
-ImageSharp has a dual license, please visit [their repository](https://github.com/SixLabors/ImageSharp) for more information. 
-VectSharp is used under LGPL in this project (GPL packages are not used).  
+## Mermaid Diagram
 
-MarkdownRenderer.Renderer is itself licensed under MIT, but depends on QuestPDF which has additional requirements for companies and may require purchasing a license. Please check [their repository](https://github.com/QuestPDF/QuestPDF?tab=readme-ov-file#fair-and-sustainable-license) for information on the Community and Commercial licenses.  
+```mermaid
+graph TD;
+    A[Start] --> B{Is it?};
+    B -- Yes --> C[OK];
+    B -- No --> D[Cancel];
+```
+";
 
-### Contribute
+            string pptxMarkdown = @"# Lists
+
+This is a paragraph on the first slide.
+It has some **bold** and *italic* text.
+
+* Item 1
+* Item 2
+  * Subitem A
+
+# Code Areas
+
+This is the second slide.
+
+```csharp
+// some code
+int x = 42;
+```
+
+> A quote on the second slide.
+";
+
+            var converter = new MarkdownConverter();
+            var sourceDocx = MarkdownSource.FromMarkdownString(docxMarkdown);
+            var sourceSlides = MarkdownSource.FromMarkdownString(pptxMarkdown);
+
+            // Generate DOCX
+            string docxPath = "sample.docx";
+            converter.ToDocx(sourceDocx, docxPath);
+            Console.WriteLine($"Generated {docxPath}");
+
+            // Generate PPTX
+            string pptxPath = "sample.pptx";
+            converter.ToSlides(sourceSlides, SlideSizeValues.Screen16x9, pptxPath);
+            Console.WriteLine($"Generated {pptxPath}");
+
+            Console.WriteLine("Done!");
+        }
+    }
+}
+```
+
+## License
+
+MarkdownRenderer is licensed under MIT license and can be used for both open source and commercial projects.
+
+## Contribute
 
 - If you know how to fix a bug, feel free to open a Pull Request.  
 - To implement a new feature, please open an issue or discussion to propose it before working on the pull request.   
 - If you find the library useful, adding a star is highly appreciated. Stars are a way to guide other developers towards helpful libraries and tools.
-- This is a hobby project. You are welcome to donate to financially support its further development, if you wish (sponsor links for GitHub, LiberaPay, Ko-Fi, BuyMeACoffee and Thanks.dev are available in the repo page).  
+- This is a hobby project. You are welcome to donate to financially support its further development, if you wish (sponsor links for GitHub, LiberaPay, Ko-Fi, BuyMeACoffee and Thanks.dev are available in the repo page).
