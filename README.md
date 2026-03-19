@@ -1,6 +1,6 @@
 # MarkdownRenderer
 
-MarkdownRenderer is a renderer for markdown, using the Markdig and OpenXML projects.
+MarkdownRenderer is a renderer for markdown, using the [docsharp](https://github.com/manfromarce/DocSharp) and [Open-XML-SDK](https://github.com/dotnet/Open-XML-SDK) projects.
 
 The following packages are currently available:
 
