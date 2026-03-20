@@ -1,6 +1,6 @@
 # MarkdownRenderer
 
-MarkdownRenderer is a renderer for markdown, using the [docsharp](https://github.com/manfromarce/DocSharp) and [Open-XML-SDK](https://github.com/dotnet/Open-XML-SDK) projects.
+MarkdownRenderer is a renderer for markdown, based on a fork of the [docsharp](https://github.com/manfromarce/DocSharp) and [Open-XML-SDK](https://github.com/dotnet/Open-XML-SDK) projects.
 
 ## Installation
 
@@ -124,11 +124,6 @@ int x = 42;
 
 ## License
 
-MarkdownRenderer is licensed under MIT license and can be used for both open source and commercial projects.
+MarkdownRenderer is licensed under [MIT license](LICENSE) and can be used for both open source and commercial projects.
+The original forked projects are licensed under [MIT](https://github.com/manfromarce/DocSharp/blob/main/LICENSE) (docsharp) and [MIT](https://github.com/dotnet/Open-XML-SDK/blob/main/LICENSE) (Open-XML-SDK).
 
-## Contribute
-
-- If you know how to fix a bug, feel free to open a Pull Request.  
-- To implement a new feature, please open an issue or discussion to propose it before working on the pull request.   
-- If you find the library useful, adding a star is highly appreciated. Stars are a way to guide other developers towards helpful libraries and tools.
-- This is a hobby project. You are welcome to donate to financially support its further development, if you wish (sponsor links for GitHub, LiberaPay, Ko-Fi, BuyMeACoffee and Thanks.dev are available in the repo page).
