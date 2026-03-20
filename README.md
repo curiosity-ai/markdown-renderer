@@ -26,7 +26,7 @@ The library allows converting Markdown into Microsoft Word (`.docx`) and PowerPo
 
 Below is a complete example of generating a DOCX and a PPTX document from Markdown strings:
 
-```csharp
+````csharp
 using System;
 using DocumentFormat.OpenXml.Presentation;
 using MarkdownRenderer.Markdown;
@@ -120,10 +120,11 @@ int x = 42;
         }
     }
 }
-```
+````
+
 
 ## License
 
-MarkdownRenderer is licensed under [MIT license](LICENSE) and can be used for both open source and commercial projects.
-The original forked projects are licensed under [MIT](https://github.com/manfromarce/DocSharp/blob/main/LICENSE) (docsharp) and [MIT](https://github.com/dotnet/Open-XML-SDK/blob/main/LICENSE) (Open-XML-SDK).
+MarkdownRenderer is licensed under [MIT license](LICENSE).
+Original projects licenses also under [MIT](https://github.com/manfromarce/DocSharp/blob/main/LICENSE) (DocSharp) and [MIT](https://github.com/dotnet/Open-XML-SDK/blob/main/LICENSE) (Open-XML-SDK).
 
