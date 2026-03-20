@@ -5,7 +5,7 @@ MarkdownRenderer is a renderer for markdown, based on a fork of the [docsharp](h
 ## Installation
 
 Packages can be installed via NuGet:  
-[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer.Markdown?style=flat-square&label=MarkdownRenderer.Markdown)](https://www.nuget.org/packages/MarkdownRenderer.Markdown/)
+[![NuGet](https://img.shields.io/nuget/vpre/MarkdownRenderer?style=flat-square&label=MarkdownRenderer)](https://www.nuget.org/packages/MarkdownRenderer/)
 
 ## Features
 
