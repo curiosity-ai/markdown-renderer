@@ -157,13 +157,16 @@ public class SlideDocumentRenderer : RendererBase
 
     public D.Paragraph CreateParagraph()
     {
+        // Content before the first level-1 heading has no slide yet.
+        if (CurrentSlidePart == null)
+        {
+            CreateNewSlide();
+        }
+
         var p = new D.Paragraph();
         if (ActiveList.Count > 0)
         {
-            p.ParagraphProperties = new D.ParagraphProperties()
-            {
-                Level = ActiveList.Count
-            };
+            p.ParagraphProperties = CreateListParagraphProperties(ActiveList.Count, ActiveList.Peek());
         }
 
         if (CurrentTextBody == null) {
@@ -174,6 +177,38 @@ public class SlideDocumentRenderer : RendererBase
         CurrentTextBody.AppendChild(p);
         CurrentParagraph = p;
         return p;
+    }
+
+    private const int LIST_INDENT_EMU = 342900;
+
+    private static D.ParagraphProperties CreateListParagraphProperties(int depth, Blocks.ListInfo listInfo)
+    {
+        var properties = new D.ParagraphProperties()
+        {
+            Level      = System.Math.Min(depth - 1, 8),
+            LeftMargin = LIST_INDENT_EMU * depth,
+            Indent     = listInfo.BulletPending ? -LIST_INDENT_EMU : 0
+        };
+
+        if (!listInfo.BulletPending)
+        {
+            properties.Append(new D.NoBullet());
+        }
+        else if (listInfo.IsOrdered)
+        {
+            properties.Append(new D.AutoNumberedBullet()
+            {
+                Type    = listInfo.OrderedDelimiter == ')' ? D.TextAutoNumberSchemeValues.ArabicParenR : D.TextAutoNumberSchemeValues.ArabicPeriod,
+                StartAt = listInfo.Start + listInfo.Index - 1
+            });
+        }
+        else
+        {
+            properties.Append(new D.CharacterBullet() { Char = depth % 2 == 1 ? "\u2022" : "\u2013" });
+        }
+
+        listInfo.BulletPending = false;
+        return properties;
     }
 
     public override object Render(MarkdownObject markdownObject)

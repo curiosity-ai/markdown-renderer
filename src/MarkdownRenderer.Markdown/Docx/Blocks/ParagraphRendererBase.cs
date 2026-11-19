@@ -18,7 +18,8 @@ public abstract class ParagraphRendererBase<T> : DocxObjectRenderer<T> where T :
 
     protected Paragraph WriteAsParagraph(DocxDocumentRenderer renderer, T obj, string? styleId, string? bookmarkName)
     {
-        if (obj.Parent is ListItemBlock && !renderer.IsFirstInContainer)
+        bool isListItemContinuation = obj.Parent is ListItemBlock && !renderer.IsFirstInContainer;
+        if (isListItemContinuation)
         {
             // In DOCX list items cannot contain multiple paragraphs.            
             renderer.ForceCloseParagraph();            
@@ -26,6 +27,13 @@ public abstract class ParagraphRendererBase<T> : DocxObjectRenderer<T> where T :
 
         var p = new Paragraph();
         p.SetStyle(styleId);
+
+        if (isListItemContinuation &&
+            renderer.ActiveList.TryPeek(out var listInfo) &&
+            listInfo.ContinuationIndent != null)
+        {
+            p.GetOrCreateProperties().Indentation = new Indentation() { Left = listInfo.ContinuationIndent };
+        }
 
         if (renderer.NoParagraph == 0)
         {
