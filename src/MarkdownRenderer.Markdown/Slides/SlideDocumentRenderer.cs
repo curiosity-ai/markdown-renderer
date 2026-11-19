@@ -204,7 +204,6 @@ public class SlideDocumentRenderer : RendererBase
         }
         else
         {
-            properties.Append(new D.BulletFont() { Typeface = "Arial" });
             properties.Append(new D.CharacterBullet() { Char = depth % 2 == 1 ? "\u2022" : "\u2013" });
         }
 

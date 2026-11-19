@@ -104,6 +104,39 @@ namespace MarkdownRenderer.Markdown.Tests
         }
 
         [Fact]
+        public void Docx_BulletLevels_UseUnicodeGlyphsWithoutSymbolFonts()
+        {
+            // Symbol / Wingdings bullets are private-use code points that have no glyph where those fonts are missing (Linux).
+            var converter = new MarkdownConverter();
+            var bytes = converter.ToDocxBytes(MarkdownSource.FromMarkdownString("- itemA\n"));
+
+            using var ms = new MemoryStream(bytes);
+            using var doc = WordprocessingDocument.Open(ms, false);
+            var levels = doc.MainDocumentPart!.NumberingDefinitionsPart!.Numbering!
+                            .Elements<AbstractNum>()
+                            .SelectMany(a => a.Elements<Level>())
+                            .ToArray();
+            Assert.NotEmpty(levels);
+
+            foreach (var level in levels)
+            {
+                var text = level.LevelText?.Val?.Value ?? "";
+                Assert.DoesNotContain(text, c => c >= '\uE000' && c <= '\uF8FF');
+
+                var fonts = level.NumberingSymbolRunProperties?.RunFonts;
+                var names = new[] { fonts?.Ascii?.Value, fonts?.HighAnsi?.Value, fonts?.ComplexScript?.Value, fonts?.EastAsia?.Value };
+                Assert.DoesNotContain(names, n => n != null && (n.Contains("Symbol") || n.Contains("Wingdings")));
+            }
+
+            var bullet = levels.Where(l => l.NumberingFormat?.Val?.Value == NumberFormatValues.Bullet)
+                               .OrderBy(l => l.LevelIndex!.Value)
+                               .Take(3)
+                               .Select(l => l.LevelText!.Val!.Value)
+                               .ToArray();
+            Assert.Equal(new[] { "\u2022", "\u25E6", "\u25AA" }, bullet);
+        }
+
+        [Fact]
         public void Docx_OrderedListStartingAtN_KeepsStart()
         {
             var items = RenderDocxListItems("3. three\n4. four\n", out _);
