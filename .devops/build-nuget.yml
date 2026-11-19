@@ -10,7 +10,14 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-- task: NuGetToolInstaller@0
+# Pushing to an external feed through an API-key service connection needs NuGet 7.6 or later; the @0 task's
+# default installs 7.0 and the push fails with "External service connections that use API key authentication
+# require NuGet 7.6 or later".
+- task: NuGetToolInstaller@1
+  displayName: 'Use NuGet >= 7.6'
+  inputs:
+    versionSpec: '>=7.6.0'
+    checkLatest: true
 
 
 - task: PowerShell@2
