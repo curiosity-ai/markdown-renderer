@@ -30,11 +30,6 @@ public abstract class SlideObjectRenderer<T> : MarkdownObjectRenderer<SlideDocum
             run.RunProperties = new D.RunProperties() { Language = "en-US", FontSize = 1800, Dirty = false };
         }
 
-        if (renderer.CurrentSlidePart == null)
-        {
-            renderer.CreateNewSlide();
-        }
-
         if (renderer.CurrentParagraph == null)
         {
             renderer.CreateParagraph();
